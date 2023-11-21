@@ -20,7 +20,7 @@ function First() {
       document.querySelector('.first_cont_section').style.display = 'block';
       
       document.querySelector('.csmright_dmore_wrp').style.opacity = '1';
-
+    
       document.querySelector('.headernavwrp-aboutme').classList.remove('disabled-nav');
       document.querySelector('.headernavwrp-home').classList.remove('disabled-nav');
       }, 1200);

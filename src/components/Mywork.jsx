@@ -32,6 +32,9 @@ function Mywork() {
       document.querySelector('.headernavwrp-mywork').classList.remove('d-none');
       document.querySelector('.mywork_container').classList.remove('d-none');
 
+      if(document.querySelector('.csmright_dmore_wrp')) {
+        document.querySelector('.csmright_dmore_wrp').style.opacity = '1';
+    }
     setTimeout(() => {
       document.querySelector('.headernavwrp-mywork').style.opacity = '1';
       document.querySelector('.mywork_container').style.opacity = '1';

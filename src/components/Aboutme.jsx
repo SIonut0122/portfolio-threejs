@@ -78,6 +78,8 @@ function Aboutme() {
 
             document.querySelector('.headernavwrp-aboutme').classList.remove('d-none');
             setTimeout(() => {
+            
+
                 document.querySelector('.headernavwrp-aboutme').style.opacity = '1';
                document.querySelector('.headernavwrp-aboutme').classList.remove('disabled-nav');
 
