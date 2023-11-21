@@ -1,0 +1,59 @@
+@font-face {
+  font-family: "RobotoRegular";
+  src: url("/fonts/Roboto-Regular.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "RobotoSlab";
+  src: url("/fonts/RobotoSlab-Regular.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "RobotoSlabBold";
+  src: url("/fonts/RobotoSlab-Bold.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+:root {
+  --color-main: #b3b3b3;
+}
+
+body {
+  padding: 0;
+  margin: 0;
+  line-height: 1.2;
+  overflow-x: hidden;
+  background-color: rgb(26, 25, 25);
+  font-family: RobotoSlab, RobotoRegular, Arial, Helvetica, sans-serif;
+}
+.fixed-body {
+  overflow: hidden;
+}
+.mobmenu-btn-active {
+  -webkit-text-stroke: 1px #fff;
+  color: transparent;
+}
+.home_container_full {
+  min-height: 200px;
+  position: relative;
+}
+.home_container_cont {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  opacity: 0;
+  -webkit-transition: opacity 1s;
+  -o-transition: opacity 1s;
+  transition: opacity 1s;
+  z-index: -1;
+
+  canvas {
+    height: 100%;
+    height: 100%;
+  }
+}
