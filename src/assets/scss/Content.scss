@@ -87,11 +87,11 @@
       -ms-transform: translateY(-50%);
           transform: translateY(-50%);
   @include disable-select();
+  opacity: 0;
   -webkit-transition: opacity 1s;
   -o-transition: opacity 1s;
   transition: opacity 1s;
-  -webkit-animation: fadeanim 1s forwards;
-          animation: fadeanim 1s forwards;
+ 
 
   div {
     width: 70px;

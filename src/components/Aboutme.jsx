@@ -13,6 +13,7 @@ function Aboutme() {
          // hightlight nav mobile menu btn
       document.querySelectorAll('.mobnav-btn').forEach(el => el.classList.remove('mobmenu-btn-active'));
       document.querySelector('.mobnav-aboutme').classList.add('mobmenu-btn-active');
+      document.querySelector('.csmright_dmore_wrp').style.opacity = '0';
 
 
         if(!rendered) {
@@ -60,9 +61,6 @@ function Aboutme() {
                 fillBarSpan.style.width = `${fillWidth}%`;
               }
         
-          
-
-              
             let lenis = new Lenis()
     
             lenis.on('scroll', updateFillBarWidth);
@@ -78,8 +76,8 @@ function Aboutme() {
 
             document.querySelector('.headernavwrp-aboutme').classList.remove('d-none');
             setTimeout(() => {
-            
 
+                // hide more
                 document.querySelector('.headernavwrp-aboutme').style.opacity = '1';
                document.querySelector('.headernavwrp-aboutme').classList.remove('disabled-nav');
 

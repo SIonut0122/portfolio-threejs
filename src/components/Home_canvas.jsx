@@ -451,10 +451,8 @@ const openAboutMeComp = () => {
 
   if (!openAboutme && !document.querySelector('.aboutme_container')) {
 
-    // hide more
-    if(document.querySelector('.csmright_dmore_wrp')) {
-      document.querySelector('.csmright_dmore_wrp').style.opacity = '0';
-  }
+
+ 
 
     // hide containers
     document.querySelector('.home_container_cont').style.opacity = '0';
