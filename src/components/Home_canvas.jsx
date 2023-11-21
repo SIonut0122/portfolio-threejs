@@ -448,6 +448,7 @@ const openAboutMeComp = () => {
   // hide mobile menu if exists
   document.querySelector('.mobile-menu-cont').classList.remove('mobilemenu-active');
   document.querySelector('.hamburger').classList.remove('isactive');
+  document.querySelector('body').classList.remove('fixed-body');
 
   if (!openAboutme && !document.querySelector('.aboutme_container')) {
 

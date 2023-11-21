@@ -29,9 +29,7 @@ body {
   background-color: rgb(26, 25, 25);
   font-family: RobotoSlab, RobotoRegular, Arial, Helvetica, sans-serif;
 }
-.fixed-body {
-  overflow: hidden;
-}
+
 .mobmenu-btn-active {
   -webkit-text-stroke: 1px #fff;
   color: transparent;
@@ -55,5 +53,14 @@ body {
   canvas {
     height: 100%;
     height: 100%;
+  }
+}
+
+
+
+
+@media (max-width: 767.98px) {
+  .fixed-body {
+    overflow: hidden;
   }
 }

@@ -23,7 +23,7 @@ function Mywork() {
        // hightlight nav mobile menu btn
        document.querySelectorAll('.mobnav-btn').forEach(el => el.classList.remove('mobmenu-btn-active'));
        document.querySelector('.mobnav-mywork').classList.add('mobmenu-btn-active');
-
+       document.querySelector('body').classList.remove('fixed-body');
        
       const posDoc = document.querySelector('.mywork_section');
       posDoc.addEventListener('mousemove', (e) => posHandler(e));

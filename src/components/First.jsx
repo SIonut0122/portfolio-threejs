@@ -9,7 +9,7 @@ function First() {
       // hightlight nav mobile menu btn
       document.querySelectorAll('.mobnav-btn').forEach(el => el.classList.remove('mobmenu-btn-active'));
       document.querySelector('.mobnav-home').classList.add('mobmenu-btn-active');
-
+      document.querySelector('body').classList.remove('fixed-body');
 
       document.querySelector('.headernavwrp-home').classList.remove('d-none');
 
