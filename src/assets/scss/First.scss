@@ -10,6 +10,10 @@
   padding: 20px 50px;
   opacity: 0;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  
 
   .first_bott_bb {
     position: absolute;
@@ -28,7 +32,7 @@
   @include disable-select();
   overflow: hidden;
   display: none;
-  min-height: 280px;
+  min-height: 700px;
   h3 {
     font-size: 80px;
     letter-spacing: 5px;
@@ -158,6 +162,9 @@
   }
   .first_cont_section h3 {
     font-size: 60px;
+  }
+  .first_cont_section { 
+    min-height: 630px;
   }
 }
 

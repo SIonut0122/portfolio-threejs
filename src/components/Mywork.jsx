@@ -45,8 +45,13 @@ function Mywork() {
 
     const posHandler = (e) => {
       const posDoc = document.querySelector('.mywork_section');
-      posDoc.style.setProperty('--x', e.clientX + "px");
-      posDoc.style.setProperty('--y', e.clientY + "px");
+      const rect = posDoc.getBoundingClientRect();
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+    
+      // Set custom properties for the cursor position
+      posDoc.style.setProperty('--x', mouseX + "px");
+      posDoc.style.setProperty('--y', mouseY + "px");
     }
     return (
       <div className='mywork_container w-100 d-none'>

@@ -40,7 +40,7 @@ function Content() {
                     <div className='octagon'>
                         <img src={topArrow} alt='More arrow'/>
                         <div className='inner'>
-                            <p>more</p>
+                            
                         </div>
                     </div>
                      </div>
