@@ -35,13 +35,12 @@ body {
   color: transparent;
 }
 .home_container_full {
-  min-height: 200px;
   position: relative;
 }
 .home_container_cont {
   position: fixed;
   width: 100%;
-  height: 100%;
+  height: 100svh;
   left: 0;
   top: 0;
   opacity: 0;
