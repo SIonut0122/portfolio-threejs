@@ -3,26 +3,24 @@
 .content_container {
   width: 100%;
   min-height: auto;
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  align-items: flex-start;
+  position: relative;
 }
 
 .content_cont_sm {
-  width: 15%;
-  min-height: 700px;
+  position: absolute;
+  top: 0;
+  width: 10%;
+  min-height: 100vh;
+  pointer-events: none;
+  z-index: 10;
 }
-.content_cont_mid {
-  width: 70%;
-  min-height: 700px;
-}
+
 .content_cont_sm_left {
+  left: 0;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
 
-  position: relative;
   p {
     @include disable-select;
     pointer-events: none;
@@ -71,8 +69,8 @@
 }
 
 .content_cont_sm_right {
+  right: 0;
   color: #fff;
-  position: relative;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -81,9 +79,17 @@
           justify-content: center;
 }
 
+.content_cont_mid {
+  width: 100%; 
+  min-height: 100dvh;
+  position: relative;
+  z-index: 5;
+}
+
 .csmright_dmore_wrp {
   position: fixed;
   top: 50%;
+  right: 40px; 
   color: var(--color-main);
   -webkit-transform: translateY(-50%);
       -ms-transform: translateY(-50%);
@@ -93,7 +99,7 @@
   -webkit-transition: opacity 1s;
   -o-transition: opacity 1s;
   transition: opacity 1s;
- 
+  pointer-events: auto;
 
   div {
     width: 70px;
@@ -103,9 +109,9 @@
 
   .octagon {
     opacity: 0.7;
-
     overflow: hidden;
     border-radius: 40%;
+
     img {
       position: absolute;
       left: 50%;
@@ -120,59 +126,14 @@
     }
   }
 
-  @-webkit-keyframes arrowAnimation {
-    0% {
-      top: 30px;
-      opacity: 0.7;
-    }
-    15% {
-      opacity: 0.2;
-    }
-    35% {
-      opacity: 0;
-    }
-    50% {
-      top: -20px;
-      opacity: 0;
-    }
-    100% {
-      top: -40px;
-      opacity: 0;
-    }
-  }
-
-  @keyframes arrowAnimation {
-    0% {
-      top: 30px;
-      opacity: 0.7;
-    }
-    15% {
-      opacity: 0.2;
-    }
-    35% {
-      opacity: 0;
-    }
-    50% {
-      top: -20px;
-      opacity: 0;
-    }
-    100% {
-      top: -40px;
-      opacity: 0;
-    }
-  }
-
   .inner {
     -webkit-transform: rotate(45deg);
         -ms-transform: rotate(45deg);
             transform: rotate(45deg);
     background: transparent;
     border: 1px solid var(--color-main);
-
     display: -webkit-box;
-
     display: -ms-flexbox;
-
     display: flex;
     -webkit-box-orient: vertical;
     -webkit-box-direction: normal;
@@ -184,6 +145,7 @@
     -webkit-box-pack: center;
         -ms-flex-pack: center;
             justify-content: center;
+
     p {
       font-size: 10px;
       -webkit-transform: rotate(-45deg);
@@ -197,6 +159,7 @@
       transition: color 0.5s;
     }
   }
+
   &:hover {
     p {
       color: #fff;
@@ -204,46 +167,45 @@
   }
 }
 
+@-webkit-keyframes arrowAnimation {
+  0% { top: 30px; opacity: 0.7; }
+  15% { opacity: 0.2; }
+  35% { opacity: 0; }
+  50% { top: -20px; opacity: 0; }
+  100% { top: -40px; opacity: 0; }
+}
+
+@keyframes arrowAnimation {
+  0% { top: 30px; opacity: 0.7; }
+  15% { opacity: 0.2; }
+  35% { opacity: 0; }
+  50% { top: -20px; opacity: 0; }
+  100% { top: -40px; opacity: 0; }
+}
+
 @-webkit-keyframes fadeanim {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes fadeanim {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @media (max-width: 1260px) {
-  .content_cont_sm_left .ccsml-fill-scr {
-    width: 120px;
-  }
+  .content_cont_sm_left .ccsml-fill-scr { width: 120px; }
 }
 
 @media (max-width: 992px) {
-  .content_cont_sm_left .ccsml-fill-scr {
-    width: 100px;
-  }
+  .content_cont_sm_left .ccsml-fill-scr { width: 100px; }
 }
+
 @media (max-width: 840px) {
-  .content_cont_sm_left .ccsml-fill-scr {
-    display: none;
-  }
+  .content_cont_sm_left .ccsml-fill-scr { display: none; }
 }
 
 @media (max-width: 767.98px) {
-  .content_cont_sm {
-    display: none;
-  }
-  .content_cont_mid {
-    width: 100%;
-  }
+  .content_cont_sm { display: none; }
+  .content_cont_mid { width: 100%; }
 }

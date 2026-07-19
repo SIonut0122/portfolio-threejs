@@ -1,86 +1,128 @@
-import { useEffect, useState, useContext } from 'react';
+import { useContext, useEffect, useState } from 'react';
+import { MainContext } from "./Home";
 import isLogo from '../assets/images/is-logo.png';
 
-
 function Header() {
+    const context = useContext(MainContext);
+    const { openAboutme, openMyWork, openFirst, setOpenAboutme, setOpenMyWork, setOpenFirst } = context || {};
+    const [isScrolled, setIsScrolled] = useState(false);
 
-    
     useEffect(() => {
-        document.querySelectorAll('.header-hov-icon').forEach(el => el.addEventListener('mouseover', handleMouseOver));
-        document.querySelectorAll('.header-hov-icon').forEach(el => el.addEventListener('mouseleave', handleMouseLeave));
-    
-        let hamburger = document.querySelector('.hamburger');
-        let mobilemenu = document.querySelector('.mobile-menu-cont');
-
-        hamburger.addEventListener('click', function() {
-        hamburger.classList.toggle('isactive');
-        mobilemenu.classList.toggle('mobilemenu-active');
-        document.querySelector('body').classList.toggle('fixed-body');
-        });
-        
-       
-    },[])
-    
-    
-    const handleMouseOver = () => {
-        if(document.querySelector('.mywork_sec_cursor')) {
-            document.querySelector('.mywork_sec_cursor').setAttribute('style','opacity:0');
+        if (!openMyWork && !openAboutme) {
+            document.body.classList.add('overflow-disabled');
+        } else {
+            document.body.classList.remove('overflow-disabled');
         }
-    }
-    const handleMouseLeave = () => {
-           setTimeout(() => {
-            if(document.querySelector('.mywork_sec_cursor')) {
-                document.querySelector('.mywork_sec_cursor').setAttribute('style','opacity:1');
-            }
-           }, 200);
-    }
+        return () => {
+            document.body.classList.remove('overflow-disabled');
+        };
+    }, [openMyWork, openAboutme]);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            setIsScrolled(window.scrollY > 50);
+        };
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
+    const toggleMenu = () => {
+        const hamburger = document.querySelector('.hamburger');
+        const mobilemenu = document.querySelector('.mobile-menu-cont');
+        hamburger?.classList.toggle('isactive');
+        mobilemenu?.classList.toggle('mobilemenu-active');
+        document.body.classList.toggle('fixed-body');
+    };
+
+    const handleTransition = (nextAction) => {
+        const hamburger = document.querySelector('.hamburger');
+        const mobilemenu = document.querySelector('.mobile-menu-cont');
+        if (hamburger?.classList.contains('isactive')) {
+            hamburger.classList.remove('isactive');
+            mobilemenu?.classList.remove('mobilemenu-active');
+            document.body.classList.remove('fixed-body');
+        }
+
+        const container = document.querySelector('.mywork_container') || 
+                          document.querySelector('.aboutme_container') || 
+                          document.querySelector('.home_container_cont');
+        
+        if (container) {
+            container.style.opacity = '0';
+            container.style.transition = 'opacity 0.5s ease-in-out';
+        }
+
+        setTimeout(() => {
+            nextAction();
+        }, 500);
+    };
+
+    const goToHome = () => handleTransition(() => { setOpenFirst(true); setOpenAboutme(false); setOpenMyWork(false); });
+    const goToMyWork = () => handleTransition(() => { setOpenFirst(false); setOpenAboutme(false); setOpenMyWork(true); });
+    const goToAboutMe = () => handleTransition(() => { setOpenFirst(false); setOpenAboutme(true); setOpenMyWork(false); });
 
     return (
-        <header>
-           <div className='header-sm header-logo header-hov-icon'>
-            <img className="header-nav-home" src={isLogo} alt=''/>
-           </div>
-           <div className='header-bg header-mid'>
-            <p>Ionut Stan</p>
-           </div>
-           <div className='header-sm header-nav header-hov-icon header-wrpall'>
+        <header className={isScrolled ? 'header-scrolled' : ''}>
+            <div className='header-logo' onClick={goToHome}>
+                <img src={isLogo} alt='Logo' />
+            </div>
+            
+            <div className='header-mid'>
+                <p>Ionut Stan</p>
+            </div>
+            
+            <div className='header-nav-container'>
                 <div className='header-nav-wrapper'>
-                    <div className='headernavwrp-home'>
-                        <button id='header-nav-mywork' className='btn header-nav-btn header-nav-mywork' type='button'>MY WORK</button>
-                        <span>/</span>
-                        <button className='btn header-nav-btn header-nav-aboutme' type='button'>ABOUT ME</button>
-                    </div>
-                    <div className='headernavwrp-mywork d-none'>
-                        <button className='btn header-nav-btn header-nav-home' type='button'>BACK TO HOME</button>
-                        <span>/</span>
-                        <button  className='btn header-nav-btn header-nav-aboutme' type='button'>ABOUT ME</button>
-                    </div>
-                    <div className='headernavwrp-aboutme d-none'>
-                    <button className="item-1 btn header-nav-btn header-nav-home">
-                        <span className="inner">
-                        <span className="label">GO BACK</span>
-                        </span>
-                    </button>
-                    
-                    </div>
+                    {openFirst && (
+                        <div className='headernavwrp-dynamic fade-in-nav'>
+                            <button className='btn header-nav-btn' type='button' onClick={goToMyWork}>MY WORK</button>
+                            <span>/</span>
+                            <button className='btn header-nav-btn' type='button' onClick={goToAboutMe}>ABOUT ME</button>
+                        </div>
+                    )}
+                    {!openFirst && (
+                        <div className='headernavwrp-dynamic fade-in-nav'>
+                            <button className='btn header-nav-btn' type='button' onClick={goToHome}>BACK TO HOME</button>
+                            <span>/</span>
+                            <button className='btn header-nav-btn' type='button' onClick={openAboutme ? goToMyWork : goToAboutMe}>
+                                {openAboutme ? 'MY WORK' : 'ABOUT ME'}
+                            </button>
+                        </div>
+                    )}
                 </div>
 
-                <div className="hamburger">
+                <div className="hamburger" onClick={toggleMenu}>
                     <div className="line"></div>
                     <div className="line"></div>
                     <div className="line"></div>
                 </div>
-                    
-           </div>
-           <div className='mobile-menu-cont'>
-                <ul>
-                    <li><button className='btn header-nav-home mobnav-btn mobnav-home' type='button'>Home</button></li>
-                    <li><button className='btn header-nav-mywork mobnav-btn mobnav-mywork' type='button'>My work</button></li>
-                    <li><button className='btn header-nav-aboutme mobnav-btn mobnav-aboutme' type='button'>About me</button></li>
-                </ul>
-           </div>
+            </div>
+
+            <div className='mobile-menu-cont'>
+                <div className="mmenu-grid-bg"></div>
+                <div className="mmenu-wireframe">
+                    <div className="mmenu-ticks"></div>
+                    <ul>
+                        <li>
+                            <span className="mmenu-idx">01</span>
+                            <button className="btn" type='button' onClick={goToHome}>Home</button>
+                            <div className="mmenu-oct-target"></div>
+                        </li>
+                        <li>
+                            <span className="mmenu-idx">02</span>
+                            <button className="btn" type='button' onClick={goToMyWork}>My work</button>
+                            <div className="mmenu-oct-target"></div>
+                        </li>
+                        <li>
+                            <span className="mmenu-idx">03</span>
+                            <button className="btn" type='button' onClick={goToAboutMe}>About me</button>
+                            <div className="mmenu-oct-target"></div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
         </header>
-    )
+    );
 }
 
 export default Header;

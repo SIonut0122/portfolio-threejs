@@ -1,5 +1,5 @@
-import React, {useEffect, useState, useContext, createContext} from "react";
-import HomeCanvas from './Home_canvas';
+import React, { useState } from "react";
+import HomeCanvas from "./Home_canvas";
 import Content from './Content';
 import Header from './Header';
 
@@ -15,7 +15,6 @@ function Home() {
   return (
     <>
       <div className='home_container_full w-100'>
-      <Header />
         <MainContext.Provider value={{  
             canvasIsVisible, setCanvasIsVisible,
             wireFrameOn, setWireFrameOn,
@@ -23,8 +22,10 @@ function Home() {
             openMyWork, setOpenMyWork,
             openFirst, setOpenFirst
         }}>
-        <button className="d-none" id='whitefireframe' type='button'>White / wireframe</button>
-        <button className="d-none" id='blackwhiteframe' type='button'>Black / wireframe</button>
+          <Header /> 
+
+          <button className="d-none" id='whitefireframe' type='button'>White / wireframe</button>
+          <button className="d-none" id='blackwhiteframe' type='button'>Black / wireframe</button>
 
           <HomeCanvas />
           <Content />

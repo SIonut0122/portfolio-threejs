@@ -1,52 +1,40 @@
-import { useEffect, useState, useContext } from 'react';
-import { MainContext} from "./Home";
+import { useContext } from 'react';
+import { MainContext } from "./Home";
 import Aboutme from "./Aboutme";
 import Mywork from "./Mywork";
 import First from "./First";
 import topArrow from '../assets/images/hm_more_arrow.png';
-
+import ScrollIndicator from './ScrollIndicator';
 
 function Content() {
-    const {openAboutme, setOpenAboutme} = useContext(MainContext);
-    const {openMyWork, setOpenMyWork} = useContext(MainContext);
-    const {openFirst, setOpenFirst} = useContext(MainContext);
+    const context = useContext(MainContext);
+    
+    const { openAboutme = false, openMyWork = false, openFirst = true } = context || {};
 
-    useEffect(() => {
-    },[openAboutme])
+    const renderActiveContent = () => {
+        if (openFirst) return <First />;
+        if (openAboutme) return <Aboutme />;
+        if (openMyWork) return <Mywork />;
+        return null;
+    };
 
     return (
-            <div className='content_container'>
-                <div className='content_cont_sm content_cont_sm_left'>
-                    <p>Portfolio 2023</p>
+        <div className='content_container'>
+            <div className='content_cont_sm content_cont_sm_left'>
+                <p>Portfolio {new Date().getFullYear()}</p>
+            </div>
 
-                    {openAboutme && (
-                    <div className='ccsml-fill-scr'><span></span></div>
-                    )}
-                    
-                </div>
-                <div className='content_cont_mid content_cont_bg_mid'>
-                    {openFirst && (
-                        <First/>
-                    )}
-                    {openAboutme && (
-                        <Aboutme/>
-                    )}
-                    {openMyWork && (
-                        <Mywork/>
-                    )}
-                </div>
-                <div className='content_cont_sm content_cont_sm_right'>
-                    <div className='csmright_dmore_wrp'>
-                    <div className='octagon'>
-                        <img src={topArrow} alt='More arrow'/>
-                        <div className='inner'>
-                            
-                        </div>
-                    </div>
-                     </div>
+            <div className='content_cont_mid content_cont_bg_mid'>
+                {renderActiveContent()}
+            </div>
+
+            <div className='content_cont_sm content_cont_sm_right'>
+                <div className='csmright_dmore_wrp'>
+                    <ScrollIndicator />
                 </div>
             </div>
-    )
+        </div>
+    );
 }
 
 export default Content;

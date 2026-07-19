@@ -45,3 +45,8 @@
   -o-text-overflow: ellipsis;
      text-overflow: ellipsis;
 }
+
+.overflow-disabled {
+  overflow: hidden !important;
+}
+
