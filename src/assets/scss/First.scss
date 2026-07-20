@@ -1,15 +1,21 @@
 @import "./layout/utilities.scss";
 
+$custom-circle-cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12"><circle cx="6" cy="6" r="4" fill="white" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/></svg>') 6 6, auto;
+
+@keyframes unifiedFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 .first_container {
   width: 100%;
   height: 80svh;
   color: #fff;
-  -webkit-transition: opacity 1s;
-  -o-transition: opacity 1s;
-  transition: opacity 1s;
   padding: 20px 140px; 
   box-sizing: border-box; 
   opacity: 0;
+  animation: unifiedFadeIn 0.8s ease-in-out forwards;
+  transition: opacity 0.8s ease-in-out;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -30,7 +36,7 @@
   padding-top: 17vh;
   pointer-events: none;
   @include disable-select();
-  overflow: hidden;
+  overflow: visible;
   display: none;
   min-height: 700px;
 
@@ -45,27 +51,17 @@
 
     span {
       -webkit-text-stroke: 1px #fff;
-      -webkit-animation: fntstr 1s forwards;
-      animation: fntstr 1s forwards;
-      -webkit-animation-delay: 1.7s;
-      animation-delay: 1.7s;
+      animation: textStrokeReveal 2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+      animation-delay: 1.8s;
     }
 
     &:nth-child(1) {
-      margin-left: -115px;
-      -webkit-animation: fntstr_f 1.5s forwards;
-      animation: fntstr_f 1.5s forwards;
-      -webkit-animation-delay: 1.2s;
-      animation-delay: 1.2s;
+      animation: cinematicRevealX 2.6s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+      animation-delay: 0.6s;
     }
     &:nth-child(2) {
-      -webkit-transform: translateY(90px);
-      -ms-transform: translateY(90px);
-      transform: translateY(90px);
-      -webkit-animation: fntstr_s 1.5s forwards;
-      animation: fntstr_s 1.5s forwards;
-      -webkit-animation-delay: 1.2s;
-      animation-delay: 1.2s;
+      animation: cinematicRevealY 2.6s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+      animation-delay: 1.0s;
     }
   }
 
@@ -73,38 +69,148 @@
     font-size: 18px;
     font-family: RobotoSlabLight, sans-serif;
     text-transform: uppercase;
-    letter-spacing: 4px;
+    letter-spacing: 6px;
     color: #fff;
     margin-top: 25px;
-    opacity: 0;
-    -webkit-animation: fadeTopBottom 1.2s forwards;
-    animation: fadeTopBottom 1.2s forwards;
-    -webkit-animation-delay: 2.2s;
-    animation-delay: 2.2s;
+    pointer-events: auto;
+    display: flex;
+    flex-wrap: wrap;
+
+    .subtitle_word {
+      display: inline-flex;
+      margin-right: 14px;
+    }
+
+    .letter_wrapper {
+      display: inline-block;
+      padding: 0 3px;
+      position: relative;
+      cursor: $custom-circle-cursor;
+
+      &::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 8px;
+        height: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.8);
+        border-radius: 50%;
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      @media (hover: hover) and (pointer: fine) {
+        &:hover {
+          &::before {
+            animation: hitImpact 0.4s ease-out forwards;
+          }
+
+          .subtitle_letter {
+            transform: translate(var(--x), var(--y)) rotate(var(--r));
+            opacity: 0;
+            filter: blur(5px);
+            transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1), 
+                        opacity 1s ease-out, 
+                        filter 1s ease-out;
+          }
+        }
+      }
+    }
+
+    .subtitle_letter {
+      display: inline-block;
+      pointer-events: none;
+      opacity: 1;
+      transform: translate(0, 0) rotate(0deg);
+      filter: blur(0px);
+      
+      animation: assembleLetter 2.2s cubic-bezier(0.25, 1, 0.5, 1) backwards;
+      animation-delay: var(--delay);
+
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), 
+                  opacity 0.25s ease-out, 
+                  filter 0.25s ease-out;
+    }
   }
 }
 
-@-webkit-keyframes fntstr_f { from { margin-left: -115px; opacity: 0; } to { margin-left: 0; opacity: 1; } }
-@keyframes fntstr_f { from { margin-left: -115px; opacity: 0; } to { margin-left: 0; opacity: 1; } }
-@-webkit-keyframes fntstr_s { from { -webkit-transform: translateY(90px); transform: translateY(90px); opacity: 0; } to { -webkit-transform: translateY(0); transform: translateY(0); opacity: 1; } }
-@keyframes fntstr_s { from { -webkit-transform: translateY(90px); transform: translateY(90px); opacity: 0; } to { -webkit-transform: translateY(0); transform: translateY(0); opacity: 1; } }
-@-webkit-keyframes fntstr { from { color: var(--color-main); } to { color: transparent; } }
-@keyframes fntstr { from { color: var(--color-main); } to { color: transparent; } }
-
-@-webkit-keyframes fadeTopBottom {
-  from { opacity: 0; -webkit-transform: translateY(-20px); transform: translateY(-20px); }
-  to { opacity: 1; -webkit-transform: translateY(0); transform: translateY(0); }
+@keyframes assembleLetter {
+  0% {
+    transform: translate(var(--x), var(--y)) rotate(var(--r));
+    opacity: 0;
+    filter: blur(10px);
+  }
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+    opacity: 1;
+    filter: blur(0px);
+  }
 }
-@keyframes fadeTopBottom {
-  from { opacity: 0; transform: translateY(-20px); }
-  to { opacity: 1; transform: translateY(0); }
+
+@keyframes hitImpact {
+  0% {
+    transform: translate(-50%, -50%) scale(0.2);
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2.5);
+    opacity: 0;
+  }
+}
+
+@keyframes cinematicRevealX {
+  0% {
+    opacity: 0;
+    transform: translateX(-100px);
+    filter: blur(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+    filter: blur(0px);
+  }
+}
+
+@keyframes cinematicRevealY {
+  0% {
+    opacity: 0;
+    transform: translateY(100px);
+    filter: blur(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0px);
+  }
+}
+
+@keyframes textStrokeReveal {
+  0% { color: var(--color-main); }
+  100% { color: transparent; }
 }
 
 @media (max-width: 991.98px) {
   .first_cont_section {
     min-height: 550px;
     h3 { font-size: 70px; }
-    .first_subtitle { font-size: 16px; margin-top: 20px; }
+    .first_subtitle { 
+      font-size: 16px; 
+      margin-top: 20px; 
+      letter-spacing: 3px;
+
+      .subtitle_word {
+        margin-right: 8px;
+      }
+      .letter_wrapper {
+        padding: 0;
+        cursor: default;
+      }
+    }
   }
 }
 
@@ -124,6 +230,14 @@
       font-size: 3.2vw;
       letter-spacing: 2px;
       margin-top: 18px;
+
+      .subtitle_word {
+        margin-right: 6px;
+      }
+      .letter_wrapper {
+        padding: 0;
+        cursor: default;
+      }
     }
   }
 }
@@ -142,9 +256,17 @@
       line-height: 0.95;
     }
     .first_subtitle {
-      font-size: 4vw;
+      font-size: 3.8vw;
       letter-spacing: 1.5px;
       margin-top: 14px;
+
+      .subtitle_word {
+        margin-right: 5px;
+      }
+      .letter_wrapper {
+        padding: 0;
+        cursor: default;
+      }
     }
   }
 }

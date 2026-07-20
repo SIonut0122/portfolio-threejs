@@ -1,12 +1,19 @@
 @import "./layout/utilities.scss";
 
+@keyframes unifiedFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 .mywork_container {
   position: relative;
   width: 100%;
   min-height: 100vh;
   top: 0;
   left: 0;
-  transition: opacity 1s;
+  opacity: 0;
+  animation: unifiedFadeIn 0.8s ease-in-out forwards;
+  transition: opacity 0.8s ease-in-out;
   overflow: hidden;
 }
 
@@ -15,13 +22,7 @@
   width: 100%;
   min-height: 100vh;
   padding: 100px 0;
-  opacity: 0;
-  animation: fadeanim_two 1s forwards;
-}
-
-@keyframes fadeanim_two {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  opacity: 1;
 }
 
 .scatter_item {
@@ -31,7 +32,7 @@
   width: max-content;
   height: max-content;
   display: inline-block;
-  pointer-events: auto; /* Forțează containerul să acționeze ca zonă stabilă de hover */
+  pointer-events: auto;
 
   &:hover {
     z-index: 10;
@@ -72,7 +73,7 @@
       display: inline-block;
       position: relative;
       z-index: 2;
-      pointer-events: none; /* Previne flicker-ul generat de re-calcularea cutiei textului mic */
+      pointer-events: none;
       transition: opacity 0.4s cubic-bezier(0.25, 1, 0.5, 1), transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
     }
 
@@ -89,7 +90,7 @@
       top: 60%; 
       left: 50%;
       transform: translate(-50%, -50%) scale(0.9);
-      pointer-events: none; /* ESENȚIAL: Textul uriaș de fundal din hover nu mai fură mouse-ul */
+      pointer-events: none;
       opacity: 0;
       transition: opacity 0.6s, transform 0.6s;
       font-size: 70px;
@@ -109,7 +110,7 @@
       transform: translate(-50%, -50%) scale(0.4);
       transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1), top 0.6s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.5s ease;
       z-index: -1; 
-      pointer-events: none; /* ESENȚIAL: Imaginea care apare nu mai blochează mouse-ul în hover-ul de limită */
+      pointer-events: none;
       border-radius: 6px;
       box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
     }
@@ -233,7 +234,7 @@
   font-weight: 900;
   letter-spacing: 18px;
   color: rgba(255, 255, 255, 0.12);
-  pointer-events: none; /* Împiedică anul din fundal să intercepteze mouse-ul */
+  pointer-events: none;
   z-index: -2; 
   white-space: nowrap;
   opacity: 0;
@@ -314,7 +315,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #121212; 
+    background-color: transparent; /* Am eliminat #121212 pentru a lăsa canvas-ul cu pureci vizibil în fundal */
     perspective: 800px;
     touch-action: pan-y !important;
     
@@ -404,7 +405,7 @@
       .project_title_text {
         opacity: 1 !important;
         transform: none !important;
-        pointer-events: auto; /* Reactivare pointer pe mobil */
+        pointer-events: auto;
       }
       
       img.desktop-preview { display: none !important; }

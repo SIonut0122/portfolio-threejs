@@ -6,6 +6,7 @@ function Header() {
     const context = useContext(MainContext);
     const { openAboutme, openMyWork, openFirst, setOpenAboutme, setOpenMyWork, setOpenFirst } = context || {};
     const [isScrolled, setIsScrolled] = useState(false);
+    const [isNavReady, setIsNavReady] = useState(false);
 
     useEffect(() => {
         if (!openMyWork && !openAboutme) {
@@ -26,7 +27,17 @@ function Header() {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
+    useEffect(() => {
+        setIsNavReady(false);
+        const delay = openFirst ? 2500 : 800; 
+        const timer = setTimeout(() => {
+            setIsNavReady(true);
+        }, delay);
+        return () => clearTimeout(timer);
+    }, [openFirst, openAboutme, openMyWork]);
+
     const toggleMenu = () => {
+        if (!isNavReady) return;
         const hamburger = document.querySelector('.hamburger');
         const mobilemenu = document.querySelector('.mobile-menu-cont');
         hamburger?.classList.toggle('isactive');
@@ -43,18 +54,16 @@ function Header() {
             document.body.classList.remove('fixed-body');
         }
 
-        const container = document.querySelector('.mywork_container') || 
-                          document.querySelector('.aboutme_container') || 
-                          document.querySelector('.home_container_cont');
+        const containers = document.querySelectorAll('.mywork_container, .aboutme_container, .first_container, .home_container_cont');
         
-        if (container) {
+        containers.forEach(container => {
             container.style.opacity = '0';
-            container.style.transition = 'opacity 0.5s ease-in-out';
-        }
+            container.style.transition = 'opacity 1.5s ease-in-out';
+        });
 
         setTimeout(() => {
             nextAction();
-        }, 500);
+        }, 1500);
     };
 
     const goToHome = () => handleTransition(() => { setOpenFirst(true); setOpenAboutme(false); setOpenMyWork(false); });
@@ -63,7 +72,7 @@ function Header() {
 
     return (
         <header className={isScrolled ? 'header-scrolled' : ''}>
-            <div className='header-logo' onClick={goToHome}>
+            <div className='header-logo'>
                 <img src={isLogo} alt='Logo' />
             </div>
             
@@ -71,7 +80,14 @@ function Header() {
                 <p>Ionut Stan</p>
             </div>
             
-            <div className='header-nav-container'>
+            <div 
+                className='header-nav-container'
+                style={{
+                    opacity: isNavReady ? 1 : 0,
+                    pointerEvents: isNavReady ? 'auto' : 'none',
+                    transition: 'opacity 0.6s ease-in-out'
+                }}
+            >
                 <div className='header-nav-wrapper'>
                     {openFirst && (
                         <div className='headernavwrp-dynamic fade-in-nav'>

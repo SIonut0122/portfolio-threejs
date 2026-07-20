@@ -12,18 +12,21 @@ header {
     box-sizing: border-box;
     z-index: 100;
     transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+    @include disable-select();
 }
 
 .header-logo {
     display: flex;
     align-items: center;
-    cursor: pointer;
+    cursor: default;
+    pointer-events: none;
     z-index: 16;
+    @include disable-select();
+
     img {
         width: 60px;
         opacity: 0.5;
         transition: opacity 1s;
-        &:hover { opacity: 0.7; }
     }
 }
 
@@ -32,12 +35,15 @@ header {
     align-items: center;
     margin-left: 50px;
     transition: opacity 0.4s ease;
+    @include disable-select();
+
     p {
         margin: 0;
         font-size: 16px;
         font-weight: bold;
         text-transform: uppercase;
         color: var(--color-main);
+        cursor: default;
     }
 }
 
@@ -49,21 +55,32 @@ header.header-scrolled .header-mid {
     display: flex;
     align-items: center;
     margin-left: auto;
-    z-index: 15;
+    z-index: 1001; // Mărit pentru a permite hamburger-ului să iasă deasupra meniului
+    @include disable-select();
 }
 
 .header-nav-wrapper {
     display: flex;
     align-items: center;
-    span { margin: 0 8px; opacity: 0.4; color: var(--color-main); }
+    @include disable-select();
+
+    span { 
+        margin: 0 8px; 
+        opacity: 0.4; 
+        color: var(--color-main); 
+    }
+
     button {
-        background: none; border: none;
+        background: none; 
+        border: none;
         color: var(--color-main);
         font-size: 14px;
         font-weight: bold;
         opacity: 0.7;
         cursor: pointer;
         transition: opacity 0.4s;
+        @include disable-select();
+
         &:hover { 
             color: var(--color-main);
             opacity: 0.9;
@@ -80,7 +97,9 @@ header.header-scrolled .header-mid {
     display: none;
     cursor: pointer;
     margin-left: 20px;
-    z-index: 25;
+    position: relative;
+    z-index: 1002; // Z-INDEX PESTE MENIUL MOBIL (999)
+
     .line {
         width: 30px;
         height: 3px;
@@ -91,6 +110,7 @@ header.header-scrolled .header-mid {
 }
 
 .hamburger.isactive .line {
+    background: #fff; // Se poate schimba în alb sau color-main ca să fie super vizibil peste fundalul închis
     &:nth-child(2) { opacity: 0; }
     &:nth-child(1) { transform: translateY(9px) rotate(45deg); }
     &:nth-child(3) { transform: translateY(-9px) rotate(-45deg); }
@@ -103,16 +123,19 @@ header.header-scrolled .header-mid {
     width: 100%;
     height: 0;
     background-color: #121212;
-    z-index: 999;
+    z-index: 999; // Z-INDEX SUB HAMBURGER (1002)
     display: flex;
     justify-content: center;
     align-items: center;
     overflow: hidden;
     transition: height 0.6s cubic-bezier(0.25, 1, 0.5, 1);
     pointer-events: none;
+    @include disable-select();
     
     .mmenu-grid-bg {
-        position: absolute; width: 100%; height: 100%;
+        position: absolute; 
+        width: 100%; 
+        height: 100%;
         background-image: linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
         background-size: 30px 30px;
         pointer-events: none;
@@ -121,15 +144,26 @@ header.header-scrolled .header-mid {
     ul {
         list-style: none;
         padding: 0;
+
         li {
             margin-bottom: 30px;
             display: flex;
             align-items: center;
+
+            .mmenu-idx {
+                @include disable-select();
+            }
+
             button {
-                background: none; border: none; color: var(--color-main);
-                font-size: 32px; font-weight: bold; text-transform: uppercase;
+                background: none; 
+                border: none; 
+                color: var(--color-main);
+                font-size: 32px; 
+                font-weight: bold; 
+                text-transform: uppercase;
                 cursor: pointer;
                 pointer-events: auto;
+                @include disable-select();
             }
         }
     }
@@ -141,11 +175,24 @@ header.header-scrolled .header-mid {
 }
 
 @media (max-width: 767.98px) {
-    header { padding: 0 15px; justify-content: space-between; }
+    header { 
+      padding: 0 15px; 
+      justify-content: space-between; 
+    }
+
     .header-mid { display: none; }
     .header-nav-wrapper { display: none; }
     .hamburger { display: block; }
-    header.header-scrolled { transform: translateY(-100%); }
+
+    header.header-scrolled {
+      transform: translateY(0); 
+
+      .header-logo {
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+      }
+    }
 }
 
 .fade-in-nav {

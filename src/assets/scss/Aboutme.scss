@@ -1,21 +1,19 @@
 @import "./layout/utilities.scss";
 
+@keyframes unifiedFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 .aboutme_container {
   width: 100%;
   min-height: 2000px;
   background-color: transparent;
   @include displayFlexColumn;
-  -webkit-transition: opacity 0.5s ease-in-out;
-  -o-transition: opacity 0.5s ease-in-out;
-  transition: opacity 0.5s ease-in-out;
   box-sizing: border-box;
   opacity: 0;
-  -webkit-animation: fadeInAboutContainer 0.4s ease-in-out forwards;
-  animation: fadeInAboutContainer 0.4s ease-in-out forwards;
-}
-
-@keyframes fadeInAboutContainer {
-  to { opacity: 1; }
+  -webkit-animation: unifiedFadeIn 0.5s ease-in-out forwards;
+  animation: unifiedFadeIn 0.5s ease-in-out forwards;
 }
 
 .ccsml-fill-scr {
@@ -71,17 +69,26 @@
     pointer-events: none;
     position: relative;
     overflow: hidden;
-    min-height: 180px;
-    padding: 40px 0;
+    min-height: 120px;
+    padding: 20px 0;
     opacity: 0;
     -webkit-animation: showaboutmesecone_wrp 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards;
     animation: showaboutmesecone_wrp 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards;
     -webkit-animation-delay: 0.1s;
     animation-delay: 0.1s;
-    p {
-      position: absolute; bottom: -50px; left: 0; font-size: 13px; overflow: hidden; opacity: 0; color: rgba(255, 255, 255, 0.2); margin-left: 5px;
+    
+    > p {
+      position: absolute; 
+      bottom: -30px; 
+      left: 0; 
+      font-size: 13px; 
+      overflow: hidden; 
+      opacity: 0; 
+      color: rgba(255, 255, 255, 0.2); 
+      margin-left: 5px;
       animation: showmoreanim 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards 0.4s;
-      text-transform: uppercase; pointer-events: none;
+      text-transform: uppercase; 
+      pointer-events: none;
     }
   }
 }
@@ -90,6 +97,10 @@
   opacity: 0; 
   animation: showaboutmesecone 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards 0.2s; 
   transform: translateY(-70px); 
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
 }
 
 @keyframes showaboutmesecone {
@@ -98,7 +109,91 @@
 }
 
 @keyframes showaboutmesecone_wrp { from { opacity: 0; } to { opacity: 1; } }
-@keyframes showmoreanim { from { bottom: -30px; opacity: 0; } to { bottom: -10px; opacity: 1; } }
+@keyframes showmoreanim { from { bottom: -20px; opacity: 0; } to { bottom: 0px; opacity: 1; } }
+
+/* --- STILURI PENTRU NOULE BLOC DE LOCAȚIE CU RADAR --- */
+.about_extra_details {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 15px;
+  pointer-events: auto;
+
+  .about_meta_info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    .location_wrapper {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+
+      .location_text {
+        font-size: 16px;
+        letter-spacing: 4px;
+        color: rgba(255, 255, 255, 0.95);
+        font-family: RobotoSlabBold, sans-serif;
+        text-transform: uppercase;
+      }
+
+      .radar_dot {
+        position: relative;
+        width: 8px;
+        height: 8px;
+        background-color: var(--color-main, #fff);
+        border-radius: 50%;
+        
+        &::after {
+          content: '';
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: 100%;
+          height: 100%;
+          border-radius: 50%;
+          border: 1px solid var(--color-main, #fff);
+          animation: radarPulse 2s ease-out infinite;
+        }
+      }
+    }
+
+    .coords_text {
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: rgba(255, 255, 255, 0.45);
+      font-family: monospace;
+      margin: 0;
+    }
+
+    .time_wrapper {
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: rgba(255, 255, 255, 0.55);
+      font-family: monospace;
+      
+      .time_value {
+        color: #fff;
+        margin-left: 6px;
+      }
+    }
+  }
+}
+
+@keyframes radarPulse {
+  0% {
+    width: 8px;
+    height: 8px;
+    opacity: 1;
+  }
+  100% {
+    width: 28px;
+    height: 28px;
+    opacity: 0;
+  }
+}
+/* ---------------------------------------------------------------- */
 
 .aboutme_section_two {
   width: 100%; display: flex; flex-direction: column; justify-content: center;
