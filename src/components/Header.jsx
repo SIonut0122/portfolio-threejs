@@ -119,17 +119,17 @@ function Header() {
                 <div className="mmenu-wireframe">
                     <div className="mmenu-ticks"></div>
                     <ul>
-                        <li>
+                        <li className={openFirst ? 'is-active-item' : ''}>
                             <span className="mmenu-idx">01</span>
                             <button className="btn" type='button' onClick={goToHome}>Home</button>
                             <div className="mmenu-oct-target"></div>
                         </li>
-                        <li>
+                        <li className={openMyWork ? 'is-active-item' : ''}>
                             <span className="mmenu-idx">02</span>
                             <button className="btn" type='button' onClick={goToMyWork}>My work</button>
                             <div className="mmenu-oct-target"></div>
                         </li>
-                        <li>
+                        <li className={openAboutme ? 'is-active-item' : ''}>
                             <span className="mmenu-idx">03</span>
                             <button className="btn" type='button' onClick={goToAboutMe}>About me</button>
                             <div className="mmenu-oct-target"></div>

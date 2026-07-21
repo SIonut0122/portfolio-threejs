@@ -84,6 +84,7 @@
   min-height: 100dvh;
   position: relative;
   z-index: 5;
+  padding-top: 50px;
 }
 
 .csmright_dmore_wrp {
@@ -211,5 +212,5 @@
 
 @media (max-width: 767.98px) {
   .content_cont_sm { display: none; }
-  .content_cont_mid { width: 100%; }
+  .content_cont_mid { width: 100%; padding-top: 0; }
 }

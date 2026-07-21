@@ -14,7 +14,7 @@ $custom-circle-cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.or
   padding: 20px 140px; 
   box-sizing: border-box; 
   opacity: 0;
-  animation: unifiedFadeIn 0.8s ease-in-out forwards;
+  transition: opacity 1.5s cubic-bezier(0.25, 1, 0.5, 1);
   transition: opacity 0.8s ease-in-out;
   position: relative;
   display: flex;

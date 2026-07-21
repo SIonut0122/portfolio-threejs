@@ -14,16 +14,28 @@ function First() {
 
     if (headerHome) {
       headerHome.classList.remove('d-none');
-      headerHome.style.opacity = '1';
-      headerHome.classList.remove('disabled-nav');
+      setTimeout(() => {
+        headerHome.style.opacity = '1';
+        headerHome.classList.remove('disabled-nav');
+      }, 50);
     }
 
     if (homeCont) homeCont.style.opacity = '1';
-    if (firstCont) firstCont.style.opacity = '1';
     if (firstSection) firstSection.style.display = 'block';
+
+    if (firstCont) {
+      setTimeout(() => {
+        firstCont.style.opacity = '1';
+      }, 50);
+    }
+
     if (csmMore) csmMore.style.opacity = '1';
     
     document.querySelector('.headernavwrp-aboutme')?.classList.remove('disabled-nav');
+
+    return () => {
+      if (firstCont) firstCont.style.opacity = '0';
+    };
   }, []);
 
   const subtitleText = "Turn ideas into reality";
@@ -43,7 +55,6 @@ function First() {
                 const randomY = (Math.random() - 0.5) * 120;
                 const randomRot = (Math.random() - 0.5) * 90;
                 
-                // Am redus timpul de pornire și viteza de succesiune
                 const delay = 0.6 + globalCharIndex * 0.05; 
                 globalCharIndex++;
 
@@ -69,7 +80,7 @@ function First() {
       </section>
       <p className='first_bott_bb'>Bucharest</p>
     </div>
-  )
+  );
 }
 
 export default First;

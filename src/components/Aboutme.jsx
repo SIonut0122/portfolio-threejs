@@ -5,6 +5,51 @@ import gsap from 'gsap';
 import SplitType from 'split-type';
 import Lenis from '@studio-freight/lenis';
 
+// Lista de caractere folosite pentru efectul de decodare cibernetică
+const SCRAMBLE_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=';
+
+function ScrambleText({ text, delay = 0, duration = 1000 }) {
+  const [displayText, setDisplayText] = useState('');
+
+  useEffect(() => {
+    let frame = 0;
+    const totalFrames = 25; 
+    let interval;
+    let timer;
+
+    timer = setTimeout(() => {
+      interval = setInterval(() => {
+        frame++;
+        const progress = frame / totalFrames;
+        const revealedLength = Math.floor(progress * text.length);
+
+        const current = text
+          .split('')
+          .map((char, i) => {
+            if (char === ' ' || char === ',') return char;
+            if (i < revealedLength) return text[i];
+            return SCRAMBLE_CHARS[Math.floor(Math.random() * SCRAMBLE_CHARS.length)];
+          })
+          .join('');
+
+        setDisplayText(current);
+
+        if (frame >= totalFrames) {
+          clearInterval(interval);
+          setDisplayText(text);
+        }
+      }, duration / totalFrames);
+    }, delay);
+
+    return () => {
+      clearTimeout(timer);
+      if (interval) clearInterval(interval);
+    };
+  }, [text, delay, duration]);
+
+  return <>{displayText || text.split('').map(() => SCRAMBLE_CHARS[0]).join('')}</>;
+}
+
 function Aboutme() {
   const progressBarRef = useRef(null);
   const { setOpenAboutme, setOpenMyWork, setOpenFirst } = useContext(MainContext);
@@ -103,18 +148,18 @@ function Aboutme() {
       </div>
 
       <section className='aboutme_section aboutme_section_one'>
-        {/* Am lăsat doar titlul principal și efectul de portfolio jos */}
         <div className='aboutmesecone_wrp'>
           <h1>ABOUT <span>ME</span></h1>  
           <p>Portfolio 2026</p>
         </div>
 
-        {/* Blocul unificat cu radarul pulsant direct sub titlu */}
         <div className='about_extra_details'>
           <div className='about_meta_info'>
             <div className='location_wrapper'>
               <div className='radar_dot'></div>
-              <span className='location_text'>BUCHAREST, RO</span>
+              <span className='location_text'>
+                <ScrambleText text="BUCHAREST, RO" delay={300} duration={1000} />
+              </span>
             </div>
             
             <p className='coords_text'>LAT 44.4268° N &nbsp;|&nbsp; LONG 26.1025° E</p>
@@ -137,13 +182,18 @@ function Aboutme() {
         <div className="aboutme_sec_exp_wrp aboume_secexp">
           <ul>
             <li>
-              <div className='abme_years abm_ul_li_div'>2022 - present</div>
-              <div className='abme_role abm_ul_li_div'>Front-End Developer</div>
+              <div className='abme_years abm_ul_li_div'>2023 - present</div>
+              <div className='abme_role abm_ul_li_div'>Front-End Developer — EveryMatrix</div>
+              <div className='abme_type abm_ul_li_div'>Hybrid</div>
+            </li>
+            <li>
+              <div className='abme_years abm_ul_li_div'>2022 - 2023</div>
+              <div className='abme_role abm_ul_li_div'>Front-End Developer — Optimum Desk</div>
               <div className='abme_type abm_ul_li_div'>Remote</div>
             </li>
             <li>
               <div className='abme_years abm_ul_li_div'>2019 - present</div>
-              <div className='abme_role abm_ul_li_div'>Front-End Developer</div>
+              <div className='abme_role abm_ul_li_div'>Front-End Developer — Self-Taught</div>
               <div className='abme_type abm_ul_li_div'>Portfolio</div>
             </li>
           </ul>
@@ -154,20 +204,24 @@ function Aboutme() {
           <ul>
             <li>
               <span>HTML5 / SCSS</span>
-              <span>JAVASCRIPT</span>
-              <span>Bootstrap 5 / MUI</span>
-              <span>Webpack / Vite</span>
+              <span>Javascript</span>
+              <span>Typescript</span>
+              <span>React / Hooks</span>
             </li>
             <li>
-              <span>React js / Hooks</span>
+              <span>Angular / Svelte</span>
+              <span>StencilJS / Web Comp</span>
               <span>Redux / Context API</span>
               <span>Laravel</span>
-              <span>Git</span>
             </li>
             <li>
+              <span>REST APIs / Swagger</span>
               <span>Firebase</span>
-              <span>FaunaDB</span>
-              <span>MySql</span>
+              <span>Playwright</span>
+              <span>Git / GitLab</span>
+            </li>
+            <li>
+              <span>Vite / Webpack</span>
             </li>
           </ul>
         </div>
@@ -177,6 +231,7 @@ function Aboutme() {
           <ul>
             <li>
               <span>Three.js</span>
+              <span>MySQL</span>
               <span>Wordpress</span>
               <span>Photoshop</span>
             </li>

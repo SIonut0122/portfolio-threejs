@@ -20,23 +20,34 @@ function Mywork() {
   const containerRef = useRef(null);
   const scrollContainerRef = useRef(null);
   const mobileTimeoutRef = useRef(null);
+  const cursorRef = useRef(null);
+  const infoBoxRef = useRef(null);
   
   const isScrollingRef = useRef(false);
   const touchStartYRef = useRef(0);
 
   const projects = [
-    { name: 'Startech Team', year: '2023', tech: 'HTML • CSS • JS • LARAVEL', url: 'https://startechteam.ro/acasa', img: sigurantapenet, top: '15%', left: '10%', speed: -0.02 },
-    { name: 'Sigurantapenet', year: '2024', tech: 'HTML • CSS • JS • PHP', url: 'https://www.sigurantapenet.ro', img: sigurantapenet, top: '16%', left: '42%', speed: 0.02 },
-    { name: 'eCommerceTv', year: '2019', tech: 'THREEJS • WEBGL • SHADERS • CSS', url: 'https://sionut0122.github.io/ecommercetv/', img: ecommtv, top: '24%', left: '16%', speed: -0.03 },
-    { name: 'Ecommlap', year: '2023', tech: 'REACT • SCSS • THREEJS • GSAP', url: 'https://sionut0122.github.io/ecommlap/', img: ecommlap, top: '22%', left: '72%', speed: 0.03 },
-    { name: 'eCommerceTDesign', year: '2022', tech: 'REACT • REDUX • BOOTSTRAP', url: 'https://sionut0122.github.io/ecommercetdesign/#/', img: ecommtdesign, top: '34%', left: '8%', speed: -0.04 },
-    { name: 'eCommerceJager', year: '2022', tech: 'REACT • CONTEXT • MATERIALUI', url: 'https://sionut0122.github.io/ecommercejager/#/', img: ecommjager, top: '33%', left: '56%', speed: 0.02 },
-    { name: 'musicPlayer', year: '2019', tech: 'VANILLA JS • CSS3 • AUDIO API', url: 'https://sionut0122.github.io/musicplayer/', img: musicplayer, top: '44%', left: '76%', speed: -0.03 },
-    { name: 'Livechat v.2.0', year: '2019', tech: 'NODEJS • SOCKETIO • REACT', url: 'https://sionut0122.github.io/LiveChatV2.0/', img: livechatv20, top: '48%', left: '30%', speed: 0.04 },
-    { name: 'pizzaDelivery', year: '2022', tech: 'REACT • ROUTER • FIREBASE', url: 'https://sionut0122.github.io/pizzaDelivery/#/', img: pizzadelivery, top: '56%', left: '55%', speed: -0.01 },
-    { name: 'ImgFBHost', year: '2019', tech: 'JS • FETCH API • LIVE STORAGE', url: 'https://sionut0122.github.io/imgfbhost/', img: imgfbhost, top: '65%', left: '12%', speed: 0.03 },
-    { name: 'CoffeeShop', year: '2022', tech: 'HTML5 • SASS • FLEXBOX', url: 'https://sionut0122.github.io/CoffeeShop/#/', img: coffeshop, top: '67%', left: '40%', speed: -0.02 },
-    { name: 'foodDelivery', year: '2020', tech: 'REACT • HOOKS • REST API', url: 'https://sionut0122.github.io/fooddelivery/', img: fooddelivery, top: '72%', left: '68%', speed: 0.05 }
+    { name: 'Startech Team', year: '2023', tech: 'HTML • CSS • JS • LARAVEL', desc: 'Sistem B2B interactiv axat pe optimizarea fluxurilor de lucru și managementul datelor.', url: 'https://startechteam.ro/acasa', img: sigurantapenet, top: '15%', left: '10%', speed: -0.02 },
+    { name: 'Sigurantapenet', year: '2024', tech: 'HTML • CSS • JS • PHP', desc: 'Portal informativ și de prevenție, dedicat securității cibernetice și protecției datelor.', url: 'https://www.sigurantapenet.ro', img: sigurantapenet, top: '16%', left: '42%', speed: 0.02 },
+    { name: 'eCommerceTv', year: '2019', tech: 'THREEJS • WEBGL • SHADERS • CSS', desc: 'Explorare vizuală 3D pentru e-commerce, integrând WebGL pentru randări de produs.', url: 'https://sionut0122.github.io/ecommercetv/', img: ecommtv, top: '24%', left: '16%', speed: -0.03 },
+    { name: 'Ecommlap', year: '2023', tech: 'REACT • SCSS • THREEJS • GSAP', desc: 'Experiență de cumpărături fluidă, cu tranziții cinematice și interfețe interactive.', url: 'https://sionut0122.github.io/ecommlap/', img: ecommlap, top: '22%', left: '72%', speed: 0.03 },
+    { name: 'eCommerceTDesign', year: '2022', tech: 'REACT • REDUX • BOOTSTRAP', desc: 'Arhitectură React modulară pentru o performanță ridicată în navigarea produselor.', url: 'https://sionut0122.github.io/ecommercetdesign/#/', img: ecommtdesign, top: '34%', left: '8%', speed: -0.04 },
+    { name: 'eCommerceJager', year: '2022', tech: 'REACT • CONTEXT • MATERIALUI', desc: 'Design minimalist de magazin online, optimizat pentru conversie și viteză.', url: 'https://sionut0122.github.io/ecommercejager/#/', img: ecommjager, top: '33%', left: '56%', speed: 0.02 },
+    { name: 'musicPlayer', year: '2019', tech: 'VANILLA JS • CSS3 • AUDIO API', desc: 'Aplicație nativă web pentru procesare și redare audio cu egalizator vizual.', url: 'https://sionut0122.github.io/musicplayer/', img: musicplayer, top: '44%', left: '76%', speed: -0.03 },
+    { name: 'Livechat v.2.0', year: '2019', tech: 'NODEJS • SOCKETIO • REACT', desc: 'Sistem de comunicare bidirecțională bazat pe WebSockets, redus la esențial.', url: 'https://sionut0122.github.io/LiveChatV2.0/', img: livechatv20, top: '48%', left: '30%', speed: 0.04 },
+    { name: 'pizzaDelivery', year: '2022', tech: 'REACT • ROUTER • FIREBASE', desc: 'Aplicație de tip ordering cu actualizări live ale statusului, via Firebase.', url: 'https://sionut0122.github.io/pizzaDelivery/#/', img: pizzadelivery, top: '56%', left: '55%', speed: -0.01 },
+    { name: 'ImgFBHost', year: '2019', tech: 'JS • FETCH API • LIVE STORAGE', desc: 'Utilitar rapid pentru stocarea și procesarea imaginilor direct în cloud.', url: 'https://sionut0122.github.io/imgfbhost/', img: imgfbhost, top: '65%', left: '12%', speed: 0.03 },
+    { name: 'CoffeeShop', year: '2022', tech: 'HTML5 • SASS • FLEXBOX', desc: 'Landing page elegant, construit pe principii flexbox și micro-interacțiuni.', url: 'https://sionut0122.github.io/CoffeeShop/#/', img: coffeshop, top: '67%', left: '40%', speed: -0.02 },
+    { name: 'foodDelivery', year: '2020', tech: 'REACT • HOOKS • REST API', desc: 'Soluție completă pentru preluarea și rutarea comenzilor folosind REST API.', url: 'https://sionut0122.github.io/fooddelivery/', img: fooddelivery, top: '72%', left: '68%', speed: 0.05 }
+  ];
+
+  const crosshairs = [
+    { top: '18%', left: '20%', delay: '0s', label: 'SEC // 01' },
+    { top: '12%', left: '75%', delay: '2s' },
+    { top: '45%', left: '12%', delay: '4s' },
+    { top: '55%', left: '85%', delay: '1.5s', label: '[ 44.42, 26.10 ]' },
+    { top: '80%', left: '28%', delay: '3.5s' },
+    { top: '75%', left: '72%', delay: '5s', label: 'EET' }
   ];
 
   useEffect(() => {
@@ -74,6 +85,20 @@ function Mywork() {
       }
 
       posDoc.style.setProperty('--cursor-size', dynamicSize + "px");
+
+      if (infoBoxRef.current) {
+        if (e.clientY > window.innerHeight * 0.55) {
+          infoBoxRef.current.classList.add('flip-y');
+        } else {
+          infoBoxRef.current.classList.remove('flip-y');
+        }
+
+        if (e.clientX < 350) {
+          infoBoxRef.current.classList.add('flip-x');
+        } else {
+          infoBoxRef.current.classList.remove('flip-x');
+        }
+      }
 
       const items = posDoc.querySelectorAll('.scatter_item');
       const centerX = window.innerWidth / 2;
@@ -178,6 +203,20 @@ function Mywork() {
 
   return (
     <div ref={containerRef} className='mywork_container w-100'>
+      
+      <div className="ambient-crosshairs-grid">
+        {crosshairs.map((c, i) => (
+          <div 
+            key={i} 
+            className="crosshair-mark" 
+            style={{ top: c.top, left: c.left, animationDelay: c.delay }}
+          >
+            <div className="cross-lines"></div>
+            {c.label && <span className="cross-label">{c.label}</span>}
+          </div>
+        ))}
+      </div>
+
       {window.innerWidth <= 767.98 && (
         <>
           <div className={`mobile-nav-arrow arrow-top ${showMobileDetails && hasItemsAbove ? 'visible' : ''}`}>
@@ -224,14 +263,24 @@ function Mywork() {
           );
         })}
 
-        <span className='mywork_sec_cursor'>
-          <span className='orbit-band'>
-            <div className='band-front'>
-              <span className='marquee'>{(formattedText + " ").repeat(10)}</span>
-            </div>
-          </span>
-          <span className='desktop-bg-giant-year'>{currentProject?.year}</span>
-        </span>
+        <div ref={cursorRef} className='mywork_sec_cursor'>
+          <div className='cursor_circle_visual'>
+            <span className='orbit-band'>
+              <div className='band-front'>
+                <span className='marquee'>{(formattedText + " ").repeat(10)}</span>
+              </div>
+            </span>
+            <span className='desktop-bg-giant-year'>{currentProject?.year}</span>
+          </div>
+        </div>
+
+        <div ref={infoBoxRef} className='cursor_info_box_wrapper'>
+          <div className='cursor_info_box'>
+            <span className='info-label'>// SYS_DESC</span>
+            <p className='info-desc'>{currentProject?.desc}</p>
+          </div>
+        </div>
+
       </div>
     </div>
   );

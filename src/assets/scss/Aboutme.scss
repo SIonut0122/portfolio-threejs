@@ -208,7 +208,18 @@
 .aboutme_sec_exp_wrp {
   min-height: 200px; width: 100%; @include displayFlexColumn; justify-content: flex-start; padding: 50px 0; align-items: center;
   ul { padding: 0; margin: 0; width: 100%; color: #fff;
-    li { width: 100%; border-bottom: 1px solid rgba(255, 255, 255, 0.2); display: flex; font-size: 18px; margin-bottom: 20px; padding: 20px 0;
+    li { 
+      width: 100%; 
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2); 
+      display: flex; 
+      font-size: 18px; 
+      margin-bottom: 20px; 
+      padding: 20px 0;
+      
+      &:last-child {
+        border-bottom: none;
+      }
+
       div { opacity: 0.7; }
     }
   }
@@ -220,7 +231,17 @@
 
 .aboutmesec_exp_workingwith {
   ul { cursor: default;
-    li { display: flex; justify-content: space-between; padding: 10px 0; margin-bottom: 5px;
+    li { 
+      display: flex; 
+      justify-content: space-between; 
+      padding: 10px 0; 
+      margin-bottom: 5px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+
+      &:last-child {
+        border-bottom: none;
+      }
+
       span { width: calc(100% / 4 - 10px); text-align: center; font-size: 15px; opacity: 0.7; transition: opacity 0.2s;
         &:hover { opacity: 1; }
       }
@@ -274,7 +295,7 @@
       padding: 15px 0;
 
       &:last-child {
-        border-bottom: 1px solid transparent;
+        border-bottom: none;
       }
 
       .abme_years { 
@@ -302,7 +323,7 @@
       gap: 15px 0;
 
       &:last-child {
-        border-bottom: 1px solid transparent;
+        border-bottom: none;
       }
 
       span {

@@ -20,7 +20,7 @@ header {
     align-items: center;
     cursor: default;
     pointer-events: none;
-    z-index: 16;
+    z-index: 1003;
     @include disable-select();
 
     img {
@@ -55,7 +55,7 @@ header.header-scrolled .header-mid {
     display: flex;
     align-items: center;
     margin-left: auto;
-    z-index: 1001; // Mărit pentru a permite hamburger-ului să iasă deasupra meniului
+    z-index: 1001;
     @include disable-select();
 }
 
@@ -98,7 +98,7 @@ header.header-scrolled .header-mid {
     cursor: pointer;
     margin-left: 20px;
     position: relative;
-    z-index: 1002; // Z-INDEX PESTE MENIUL MOBIL (999)
+    z-index: 1002;
 
     .line {
         width: 30px;
@@ -110,7 +110,7 @@ header.header-scrolled .header-mid {
 }
 
 .hamburger.isactive .line {
-    background: #fff; // Se poate schimba în alb sau color-main ca să fie super vizibil peste fundalul închis
+    background: #fff;
     &:nth-child(2) { opacity: 0; }
     &:nth-child(1) { transform: translateY(9px) rotate(45deg); }
     &:nth-child(3) { transform: translateY(-9px) rotate(-45deg); }
@@ -122,48 +122,110 @@ header.header-scrolled .header-mid {
     left: 0;
     width: 100%;
     height: 0;
-    background-color: #121212;
-    z-index: 999; // Z-INDEX SUB HAMBURGER (1002)
+    background: rgba(8, 8, 10, 0.88);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    z-index: 999;
     display: flex;
     justify-content: center;
     align-items: center;
     overflow: hidden;
-    transition: height 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+    transition: height 0.5s cubic-bezier(0.25, 1, 0.5, 1);
     pointer-events: none;
     @include disable-select();
     
+    &::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 280px;
+        height: 280px;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.04) 0%, transparent 70%);
+        pointer-events: none;
+    }
+
     .mmenu-grid-bg {
         position: absolute; 
         width: 100%; 
         height: 100%;
-        background-image: linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
-        background-size: 30px 30px;
+        background-image: linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px), 
+                          linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+        background-size: 35px 35px;
         pointer-events: none;
     }
     
+    .mmenu-wireframe {
+        position: relative;
+        z-index: 2;
+        width: 100%;
+        max-width: 320px;
+        padding: 0 20px;
+    }
+
     ul {
         list-style: none;
         padding: 0;
+        margin: 0;
 
         li {
-            margin-bottom: 30px;
+            margin-bottom: 35px;
             display: flex;
             align-items: center;
+            position: relative;
+            transition: transform 0.3s ease;
 
             .mmenu-idx {
+                font-family: 'Courier New', Courier, monospace;
+                font-size: 13px;
+                color: rgba(255, 255, 255, 0.25);
+                margin-right: 20px;
+                letter-spacing: 1px;
+                transition: color 0.3s ease;
                 @include disable-select();
             }
 
             button {
                 background: none; 
                 border: none; 
-                color: var(--color-main);
-                font-size: 32px; 
-                font-weight: bold; 
+                color: rgba(255, 255, 255, 0.5);
+                font-size: 36px; 
+                font-weight: 700; 
                 text-transform: uppercase;
+                letter-spacing: 2px;
                 cursor: pointer;
                 pointer-events: auto;
+                transition: color 0.3s ease, transform 0.3s ease;
+                padding: 0;
                 @include disable-select();
+
+                &:hover {
+                    color: #ffffff;
+                    transform: translateX(6px);
+                }
+            }
+
+            &.is-active-item {
+                .mmenu-idx {
+                    color: #ffffff;
+                    font-weight: bold;
+                }
+
+                button {
+                    color: #ffffff;
+                    text-shadow: 0 0 15px rgba(255, 255, 255, 0.35);
+                }
+
+                &::before {
+                    content: '>';
+                    position: absolute;
+                    left: -15px;
+                    color: #ffffff;
+                    font-family: monospace;
+                    font-size: 14px;
+                    animation: blinkDot 1.2s infinite;
+                }
             }
         }
     }
@@ -176,8 +238,8 @@ header.header-scrolled .header-mid {
 
 @media (max-width: 767.98px) {
     header { 
-      padding: 0 15px; 
-      justify-content: space-between; 
+        padding: 0 15px; 
+        justify-content: space-between; 
     }
 
     .header-mid { display: none; }
@@ -185,13 +247,13 @@ header.header-scrolled .header-mid {
     .hamburger { display: block; }
 
     header.header-scrolled {
-      transform: translateY(0); 
+        transform: translateY(0); 
 
-      .header-logo {
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity 0.3s ease;
-      }
+        .header-logo {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
     }
 }
 
@@ -202,4 +264,9 @@ header.header-scrolled .header-mid {
 @keyframes navTransition {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes blinkDot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.2; }
 }
