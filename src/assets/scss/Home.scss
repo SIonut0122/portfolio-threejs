@@ -10,15 +10,10 @@
   font-weight: normal;
   font-style: normal;
 }
-@font-face {
-  font-family: "RobotoSlabBold";
-  src: url("/fonts/RobotoSlab-Bold.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
 
 :root {
   --color-main: #b3b3b3;
+  --color-bg-base: #1a1919;
 }
 
 body {
@@ -26,12 +21,13 @@ body {
   margin: 0;
   line-height: 1.2;
   overflow-x: hidden;
-  background-color: rgb(26, 25, 25);
+  background-color: var(--color-bg-base);
   font-family: RobotoSlab, RobotoRegular, Arial, Helvetica, sans-serif;
+  color: #ffffff;
 }
 
 .mobmenu-btn-active {
-  -webkit-text-stroke: 1px #fff;
+  -webkit-text-stroke: 1px #ffffff;
   color: transparent;
 }
 .home_container_full {
@@ -43,21 +39,42 @@ body {
   height: 100svh;
   left: 0;
   top: 0;
-  opacity: 0;
-  -webkit-transition: opacity 1.5s cubic-bezier(0.25, 1, 0.5, 1);
-  -o-transition: opacity 1.5s cubic-bezier(0.25, 1, 0.5, 1);
-  transition: opacity 1.5s cubic-bezier(0.25, 1, 0.5, 1);
   z-index: -1;
 
   canvas {
-    height: 100%;
     height: 100%;
   }
 }
 
 @media (max-width: 767.98px) {
-  .fixed-body {
-    overflow: hidden;
+  .fixed-body { overflow: hidden; }
+}
+
+.audio-control-btn {
+  position: fixed;
+  top: 100px;
+  right: 40px;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.7);
+  padding: 8px 14px;
+  font-size: 10px;
+  font-family: RobotoSlab, sans-serif;
+  letter-spacing: 2px;
+  cursor: pointer;
+  backdrop-filter: blur(5px);
+  transition: all 0.3s ease;
+  border-radius: 4px;
+  text-transform: uppercase;
+  z-index: 100;
+  opacity: 0.8;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.4);
+    opacity: 1;
   }
 }
 
@@ -98,67 +115,115 @@ body {
     border-radius: 40px;
     text-transform: uppercase;
 
-    &:hover {
+    &:hover, &:focus-visible {
       background: rgba(255, 255, 255, 0.1);
-      color: #fff;
+      color: #ffffff;
       border-color: rgba(255, 255, 255, 0.4);
       transform: translateY(-2px);
+      outline: none;
     }
 
     &.active {
-      background: #fff;
-      color: #000;
-      border-color: #fff;
+      background: #ffffff;
+      color: #000000;
+      border-color: #ffffff;
       box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
-    }
-  }
-}
-
-@media (max-width: 767.98px) {
-  .canvas_effects_controls {
-    bottom: 30px;
-    gap: 8px;
-    
-    button {
-      padding: 6px 14px;
-      font-size: 9px;
-      letter-spacing: 2px;
     }
   }
 }
 
 .nebula_hud_hint {
   position: absolute;
-  bottom: 115px;
+  bottom: 90px;
   left: 50%;
   transform: translateX(-50%);
   width: auto;
   max-width: 90%;
-  background: rgba(12, 12, 15, 0.85);
+  background: rgba(18, 18, 18, 0.9);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 8px;
-  padding: 10px 20px;
+  padding: 14px 22px 20px 22px;
   color: #ffffff;
-  font-family: 'Courier New', Courier, monospace;
-  font-size: 12px;
+  font-family: monospace;
+  font-size: 14px;
   letter-spacing: 1px;
   text-align: center;
   pointer-events: none;
   z-index: 10;
   box-sizing: border-box;
+  overflow: hidden;
   white-space: normal;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
   transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
+/* Animație Flash alb pur / monocrom pe chenarul HUD (fără scale) */
+@keyframes hudGlowFlash {
+  0% {
+    box-shadow: 0 0 25px rgba(255, 255, 255, 0.6), inset 0 0 10px rgba(255, 255, 255, 0.3);
+    border-color: #ffffff;
+    transform: translateX(-50%);
+  }
+  100% {
+    box-shadow: 0 0 0px rgba(0, 0, 0, 0);
+    border-color: rgba(255, 255, 255, 0.15);
+    transform: translateX(-50%);
+  }
+}
+
+.nebula_hud_hint.animate-glow {
+  animation: hudGlowFlash 0.4s ease-out;
+}
+
+/* Bara de progres pe segmente (Stil Monocrom: Gri -> Alb Intens) */
+.nebula_progress_bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 5px;
+  display: flex;
+  gap: 3px;
+  padding: 0 4px 4px 4px;
+  box-sizing: border-box;
+}
+
+.nebula_progress_segment {
+  flex: 1;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.08);
+  border-radius: 2px;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+
+  &.active-synth {
+    background-color: var(--color-main);
+    box-shadow: 0 0 6px rgba(179, 179, 179, 0.4);
+  }
+
+  &.active-intense {
+    background-color: #ffffff;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+  }
+}
+
 @media (max-width: 767.98px) {
+  .audio-control-btn {
+    right: 15px;
+    padding: 6px 10px;
+    font-size: 8px;
+  }
+  .canvas_effects_controls {
+    bottom: 30px;
+    gap: 8px;
+    button { padding: 6px 14px; font-size: 9px; letter-spacing: 2px; }
+  }
   .nebula_hud_hint {
     width: 90%;
     bottom: 85px;
     font-size: 11px;
-    padding: 9px 14px;
+    padding: 9px 14px 15px 14px;
     letter-spacing: 0.8px;
     line-height: 1.4;
   }

@@ -7,15 +7,28 @@ import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 import PostProcessingMod from '../assets/js/postprocessing';
 import TWEEN from 'tween';
 import landscape from '../assets/images/1.jpeg';
-import { vertexShader, fragmentShader, fragmentShader1 } from '../assets/shaders/homeShaders'
+import { vertexShader, fragmentShader, fragmentShader1 } from '../assets/shaders/homeShaders';
+import { 
+  playCoreTransitionSound, 
+  playWindNebulaSound, 
+  stopWindNebulaSound, 
+  playMaterializeSound, 
+  playDangerSound, 
+  updateDangerVolume, 
+  stopDangerSound,
+  playExplosionSound
+} from '../utils/soundUtils';
 
 function HomeCanvas() {
-  const { openAboutme, openMyWork, openFirst, wireFrameOn } = useContext(MainContext);
+  const { openAboutme, openMyWork, openFirst, wireFrameOn, muteBackgroundAudio, restoreBackgroundAudio } = useContext(MainContext);
   const containerRef = useRef(null);
   
   const [activeEffect, setActiveEffect] = useState('core');
   const activeEffectRef = useRef('core');
   const [nebulaHint, setNebulaHint] = useState('');
+
+  const [progressStep, setProgressStep] = useState(0);
+  const [hudGlowKey, setHudGlowKey] = useState(0);
 
   const sceneRef = useRef(null);
   const cameraRef = useRef(null);
@@ -42,9 +55,14 @@ function HomeCanvas() {
   const clickCountRef = useRef(0);
   const overloadCountRef = useRef(0);
   const isNervousRef = useRef(false);
+  const isMorphingRef = useRef(false); 
+  const isTransitioningRef = useRef(false);
+
+  const flashRef = useRef(null);
+  const shockwaveRef = useRef(null);
+  const dustRef = useRef(null);
 
   const openMyWorkRef = useRef(openMyWork);
-  const myWorkActiveTime = useRef(0);
 
   useEffect(() => {
     openMyWorkRef.current = openMyWork;
@@ -57,6 +75,7 @@ function HomeCanvas() {
 
     if (activeEffect === 'nebula') {
       setNebulaHint(`${actionWord} canvas to synthesize micro-nebulae [0/4]`);
+      setProgressStep(0);
     } else {
       setNebulaHint("");
     }
@@ -73,6 +92,7 @@ function HomeCanvas() {
       clickCountRef.current = 0;
       overloadCountRef.current = 0;
       isNervousRef.current = false;
+      setProgressStep(0);
     }
   }, [activeEffect]);
 
@@ -200,6 +220,94 @@ function HomeCanvas() {
     nucleiDataRef.current = nucleiData;
     nucleiGroup.scale.set(0, 0, 0);
 
+    const flashGeo = new THREE.SphereGeometry(2.0, 32, 32);
+    const flashMat = new THREE.MeshBasicMaterial({
+      color: 0xffffff,
+      transparent: true,
+      opacity: 0,
+      blending: THREE.AdditiveBlending,
+      depthTest: false
+    });
+    const flashMesh = new THREE.Mesh(flashGeo, flashMat);
+    scene.add(flashMesh);
+    flashRef.current = { mesh: flashMesh, mat: flashMat };
+
+    const shockwaveGroup = new THREE.Group();
+    scene.add(shockwaveGroup);
+
+    const shockGeo = new THREE.RingGeometry(0.1, 1.2, 64);
+    const shockMat1 = new THREE.MeshBasicMaterial({
+      color: 0xffffff,
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: 0,
+      blending: THREE.AdditiveBlending,
+      depthTest: false
+    });
+    const shockMat2 = new THREE.MeshBasicMaterial({
+      color: 0xb3b3b3,
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: 0,
+      blending: THREE.AdditiveBlending,
+      depthTest: false
+    });
+
+    const shockRing1 = new THREE.Mesh(shockGeo, shockMat1);
+    const shockRing2 = new THREE.Mesh(shockGeo, shockMat2);
+    shockwaveGroup.add(shockRing1, shockRing2);
+    shockwaveRef.current = { group: shockwaveGroup, ring1: shockRing1, ring2: shockRing2, mat1: shockMat1, mat2: shockMat2 };
+
+    const squareGeo = new THREE.PlaneGeometry(0.045, 0.045);
+    const circleGeo = new THREE.CircleGeometry(0.025, 6);
+    
+    const triShape = new THREE.Shape();
+    triShape.moveTo(0, 0.035);
+    triShape.lineTo(-0.03, -0.02);
+    triShape.lineTo(0.03, -0.02);
+    triShape.closePath();
+    const triangleGeo = new THREE.ShapeGeometry(triShape);
+
+    const dustMat = new THREE.MeshBasicMaterial({
+      color: 0xffffff,
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: 0,
+      blending: THREE.AdditiveBlending,
+      depthTest: false
+    });
+
+    const totalParticles = 780;
+    const countPerType = totalParticles / 3;
+
+    const squareMesh = new THREE.InstancedMesh(squareGeo, dustMat, countPerType);
+    const circleMesh = new THREE.InstancedMesh(circleGeo, dustMat, countPerType);
+    const triangleMesh = new THREE.InstancedMesh(triangleGeo, dustMat, countPerType);
+
+    scene.add(squareMesh, circleMesh, triangleMesh);
+
+    const dustParticles = [];
+    const meshes = [squareMesh, circleMesh, triangleMesh];
+
+    meshes.forEach((mesh) => {
+      for (let i = 0; i < countPerType; i++) {
+        dustParticles.push({
+          mesh: mesh,
+          index: i,
+          position: new THREE.Vector3(0, 0, 0),
+          velocity: new THREE.Vector3(0, 0, 0),
+          rot: new THREE.Vector3(Math.random() * Math.PI, Math.random() * Math.PI, 0),
+          rotSpeed: new THREE.Vector3(
+            (Math.random() - 0.5) * 0.1,
+            (Math.random() - 0.5) * 0.1,
+            (Math.random() - 0.5) * 0.1
+          )
+        });
+      }
+    });
+
+    dustRef.current = { particles: dustParticles, squareMesh, circleMesh, triangleMesh, mat: dustMat, active: false };
+
     const composer = new EffectComposer(renderer);
     composer.addPass(new RenderPass(scene, camera));
     const customPass = new ShaderPass(PostProcessingMod);
@@ -214,15 +322,6 @@ function HomeCanvas() {
       animationFrameId = requestAnimationFrame(animate);
 
       TWEEN.update();
-
-      if (openMyWorkRef.current) {
-        if (myWorkActiveTime.current === 0) myWorkActiveTime.current = performance.now();
-        if (performance.now() - myWorkActiveTime.current > 1500) {
-          return;
-        }
-      } else {
-        myWorkActiveTime.current = 0;
-      }
 
       mouseNormRef.current.x += (targetMouseNormRef.current.x - mouseNormRef.current.x) * 0.05;
       mouseNormRef.current.y += (targetMouseNormRef.current.y - mouseNormRef.current.y) * 0.05;
@@ -270,6 +369,28 @@ function HomeCanvas() {
         pos.needsUpdate = true;
       }
 
+      if (dustRef.current && dustRef.current.active) {
+        const speedFactor = speedMultiplierRef.current * 2.2;
+        const dummy = new THREE.Object3D();
+
+        dustRef.current.particles.forEach((p) => {
+          p.position.addScaledVector(p.velocity, speedFactor);
+          p.rot.x += p.rotSpeed.x;
+          p.rot.y += p.rotSpeed.y;
+
+          dummy.position.copy(p.position);
+          dummy.rotation.set(p.rot.x, p.rot.y, p.rot.z);
+          dummy.scale.setScalar(0.9);
+          dummy.updateMatrix();
+
+          p.mesh.setMatrixAt(p.index, dummy.matrix);
+        });
+
+        dustRef.current.squareMesh.instanceMatrix.needsUpdate = true;
+        dustRef.current.circleMesh.instanceMatrix.needsUpdate = true;
+        dustRef.current.triangleMesh.instanceMatrix.needsUpdate = true;
+      }
+
       if (miniNebulaeRef.current.length > 0) {
         miniNebulaeRef.current.forEach((item, idx) => {
           if (!item.isExploding) {
@@ -287,17 +408,31 @@ function HomeCanvas() {
         });
       }
 
-      if (isNervousRef.current && ico && icoLines) {
-        const shake = 0.035 * (overloadCountRef.current + 1);
-        ico.position.x = (Math.random() - 0.5) * shake;
-        ico.position.y = (Math.random() - 0.5) * shake;
-        icoLines.position.x = ico.position.x;
-        icoLines.position.y = ico.position.y;
+      if (ico && icoLines) {
+        if (isNervousRef.current) {
+          const shake = 0.035 * (overloadCountRef.current + 1);
+          ico.position.x = (Math.random() - 0.5) * shake;
+          ico.position.y = (Math.random() - 0.5) * shake;
+          icoLines.position.x = ico.position.x;
+          icoLines.position.y = ico.position.y;
+        } else if (isMorphingRef.current) {
+          const morphShake = 0.03; 
+          ico.position.x = (Math.random() - 0.5) * morphShake;
+          ico.position.y = (Math.random() - 0.5) * morphShake;
+          ico.position.z = (Math.random() - 0.5) * morphShake;
+          icoLines.position.x = ico.position.x;
+          icoLines.position.y = ico.position.y;
+          icoLines.position.z = ico.position.z;
+        } else if (!openAboutme) {
+          ico.position.set(0, 0, 0);
+          icoLines.position.set(0, 0, 0);
+        }
       }
 
       if (nucleiDataRef.current) {
         nucleiDataRef.current.forEach(data => {
-          data.angle += 0.015 * speedMultiplierRef.current * data.speed;
+          const quantumSpeedModifier = activeEffectRef.current === 'quantum' ? 0.5 : 1.0;
+          data.angle += 0.015 * speedMultiplierRef.current * data.speed * quantumSpeedModifier;
           const radius = 1.5;
 
           if (data.ringType === 'vertical') {
@@ -323,6 +458,10 @@ function HomeCanvas() {
       material1.uniforms.time.value = time;
       material1.uniforms.mouse.value = finalMouseValue;
        
+      if (customPass.uniforms["time"]) {
+        customPass.uniforms["time"].value = time;
+      }
+
       composer.render();
     };
 
@@ -348,6 +487,8 @@ function HomeCanvas() {
       const m = isMobile ? 0.6 : 1;
       const actionWord = isMobile ? "Tap" : "Click";
 
+      setHudGlowKey(prev => prev + 1);
+
       if (icoRef.current && icoLinesRef.current) {
         new TWEEN.Tween(icoRef.current.scale)
           .to({ x: 1.35 * m, y: 1.35 * m, z: 1.35 * m }, 350)
@@ -372,13 +513,14 @@ function HomeCanvas() {
 
       if (clickCountRef.current < 4) {
         clickCountRef.current += 1;
+        setProgressStep(clickCountRef.current);
         setNebulaHint(`Synthesizing cosmic nodes [${clickCountRef.current}/4]`);
-
+        playMaterializeSound();
         const miniNode = new THREE.Group();
 
         const icoGeo = new THREE.IcosahedronGeometry(0.22, 0);
         const icoMat = new THREE.MeshBasicMaterial({ 
-          color: 0xcc33ff, 
+          color: 0xb3b3b3, 
           wireframe: true, 
           transparent: true, 
           opacity: 0.9,
@@ -426,9 +568,11 @@ function HomeCanvas() {
 
       } else {
         overloadCountRef.current += 1;
+        setProgressStep(4 + overloadCountRef.current);
         isNervousRef.current = true;
 
         if (overloadCountRef.current === 1) {
+          playDangerSound(0.3);
           setNebulaHint(`WARNING: Core instability rising (${overloadCountRef.current}/3)`);
           new TWEEN.Tween(material.uniforms.mouse)
             .to({ value: 2.5 }, 300)
@@ -444,6 +588,7 @@ function HomeCanvas() {
               .start();
           });
         } else if (overloadCountRef.current === 2) {
+          updateDangerVolume(0.6);
           setNebulaHint(`WARNING: Core instability rising (${overloadCountRef.current}/3)`);
           new TWEEN.Tween(material.uniforms.mouse)
             .to({ value: 4.5 }, 300)
@@ -459,74 +604,116 @@ function HomeCanvas() {
               .start();
           });
         } else {
+          stopDangerSound();
+          playExplosionSound();
           setNebulaHint("CRITICAL OVERLOAD — DISCHARGING");
           isNervousRef.current = false;
+
+          targetSpeedRef.current = 0.02;
 
           if (orbitGroupRef.current) {
             orbitGroupRef.current.visible = false;
           }
 
-          explosionProgressRef.current.value = 0;
-          new TWEEN.Tween(explosionProgressRef.current)
-            .to({ value: 1.2 }, 350)
-            .easing(TWEEN.Easing.Exponential.Out)
-            .chain(
-              new TWEEN.Tween(explosionProgressRef.current)
-                .to({ value: 0 }, 500)
-                .easing(TWEEN.Easing.Cubic.In)
-            )
-            .start();
-
-          miniNebulaeRef.current.forEach((item) => {
-            item.isExploding = true;
-          });
-
-          if (icoRef.current && icoLinesRef.current) {
-            icoRef.current.position.set(0, 0, 0);
-            icoLinesRef.current.position.set(0, 0, 0);
-
-            new TWEEN.Tween(material.uniforms.mouse)
-              .to({ value: 5.0 }, 150)
-              .chain(
-                new TWEEN.Tween(material.uniforms.mouse)
-                  .to({ value: 0.5 }, 600)
-              )
-              .start();
-
-            new TWEEN.Tween(icoRef.current.scale)
-              .to({ x: 1.9 * m, y: 1.9 * m, z: 1.9 * m }, 150)
+          if (flashRef.current) {
+            flashRef.current.mat.opacity = 1.0;
+            flashRef.current.mesh.scale.set(0.1, 0.1, 0.1);
+            new TWEEN.Tween(flashRef.current.mesh.scale)
+              .to({ x: 3.5, y: 3.5, z: 3.5 }, 250)
               .easing(TWEEN.Easing.Exponential.Out)
-              .chain(
-                new TWEEN.Tween(icoRef.current.scale)
-                  .to({ x: 1.25 * m, y: 1.25 * m, z: 1.25 * m }, 700)
-                  .easing(TWEEN.Easing.Cubic.Out)
-              )
               .start();
-
-            new TWEEN.Tween(icoLinesRef.current.scale)
-              .to({ x: 2.0 * m, y: 2.0 * m, z: 2.0 * m }, 150)
-              .easing(TWEEN.Easing.Exponential.Out)
-              .chain(
-                new TWEEN.Tween(icoLinesRef.current.scale)
-                  .to({ x: 1.35 * m, y: 1.35 * m, z: 1.35 * m }, 700)
-                  .easing(TWEEN.Easing.Cubic.Out)
-              )
+            new TWEEN.Tween(flashRef.current.mat)
+              .to({ opacity: 0 }, 300)
+              .easing(TWEEN.Easing.Cubic.Out)
               .start();
           }
 
+          if (shockwaveRef.current) {
+            const { ring1, ring2, mat1, mat2 } = shockwaveRef.current;
+            ring1.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, 0);
+            ring2.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, 0);
+
+            ring1.scale.set(0.01, 0.01, 0.01);
+            ring2.scale.set(0.01, 0.01, 0.01);
+            mat1.opacity = 0.95;
+            mat2.opacity = 0.85;
+
+            new TWEEN.Tween(ring1.scale)
+              .to({ x: 24, y: 24, z: 24 }, 550)
+              .easing(TWEEN.Easing.Exponential.Out)
+              .start();
+            new TWEEN.Tween(mat1)
+              .to({ opacity: 0 }, 550)
+              .easing(TWEEN.Easing.Cubic.Out)
+              .start();
+
+            new TWEEN.Tween(ring2.scale)
+              .to({ x: 20, y: 20, z: 20 }, 650)
+              .easing(TWEEN.Easing.Exponential.Out)
+              .start();
+            new TWEEN.Tween(mat2)
+              .to({ opacity: 0 }, 650)
+              .easing(TWEEN.Easing.Cubic.Out)
+              .start();
+          }
+
+          if (dustRef.current) {
+            dustRef.current.particles.forEach((p) => {
+              p.position.set(0, 0, 0);
+              const dir = new THREE.Vector3(
+                (Math.random() - 0.5) * 2,
+                (Math.random() - 0.5) * 2,
+                (Math.random() - 0.5) * 2
+              ).normalize();
+              const speed = 0.05 + Math.random() * 0.16;
+              p.velocity.copy(dir.multiplyScalar(speed));
+            });
+
+            dustRef.current.mat.opacity = 1.0;
+            dustRef.current.active = true;
+
+            new TWEEN.Tween(dustRef.current.mat)
+              .to({ opacity: 0 }, 2500)
+              .easing(TWEEN.Easing.Cubic.In)
+              .onComplete(() => {
+                if (dustRef.current) dustRef.current.active = false;
+              })
+              .start();
+          }
+
+          explosionProgressRef.current.value = 0;
+          new TWEEN.Tween(explosionProgressRef.current)
+            .to({ value: 1.4 }, 350)
+            .easing(TWEEN.Easing.Exponential.Out)
+            .chain(
+              new TWEEN.Tween(explosionProgressRef.current)
+                .to({ value: 0 }, 1800)
+                .easing(TWEEN.Easing.Cubic.Out)
+            )
+            .start();
+
           miniNebulaeRef.current.forEach((item, index) => {
-            const randomEdgeX = (Math.random() - 0.5) * 10;
-            const randomEdgeY = (Math.random() - 0.5) * 10;
-            const randomEdgeZ = (Math.random() - 0.5) * 10;
+            item.isExploding = true;
+
+            const pos = item.mesh.position;
+            let dir = new THREE.Vector3(pos.x, pos.y, pos.z).normalize();
+            if (dir.length() === 0) {
+              dir = new THREE.Vector3((Math.random() - 0.5), (Math.random() - 0.5), (Math.random() - 0.5)).normalize();
+            }
+
+            const blastDistance = 25 + Math.random() * 15; 
+            const targetX = dir.x * blastDistance;
+            const targetY = dir.y * blastDistance;
+            const targetZ = dir.z * blastDistance;
 
             new TWEEN.Tween(item.mesh.position)
-              .to({ x: randomEdgeX, y: randomEdgeY, z: randomEdgeZ }, 500)
+              .to({ x: targetX, y: targetY, z: targetZ }, 450)
               .easing(TWEEN.Easing.Exponential.Out)
               .start();
 
             new TWEEN.Tween(item.mesh.scale)
-              .to({ x: 0.01, y: 0.01, z: 0.01 }, 500)
-              .delay(index * 40)
+              .to({ x: 0, y: 0, z: 0 }, 350)
+              .delay(index * 15)
               .easing(TWEEN.Easing.Exponential.In)
               .onComplete(() => {
                 miniGroup.remove(item.mesh);
@@ -538,9 +725,48 @@ function HomeCanvas() {
               .start();
           });
 
+          if (icoRef.current && icoLinesRef.current) {
+            icoRef.current.position.set(0, 0, 0);
+            icoLinesRef.current.position.set(0, 0, 0);
+
+            new TWEEN.Tween(material.uniforms.mouse)
+              .to({ value: 5.0 }, 150)
+              .chain(
+                new TWEEN.Tween(material.uniforms.mouse)
+                  .to({ value: 0.5 }, 2000)
+              )
+              .start();
+
+            new TWEEN.Tween(icoRef.current.scale)
+              .to({ x: 2.1 * m, y: 2.1 * m, z: 2.1 * m }, 200)
+              .easing(TWEEN.Easing.Exponential.Out)
+              .chain(
+                new TWEEN.Tween(icoRef.current.scale)
+                  .to({ x: 1.25 * m, y: 1.25 * m, z: 1.25 * m }, 2000)
+                  .easing(TWEEN.Easing.Cubic.Out)
+              )
+              .start();
+
+            new TWEEN.Tween(icoLinesRef.current.scale)
+              .to({ x: 2.2 * m, y: 2.2 * m, z: 2.2 * m }, 200)
+              .easing(TWEEN.Easing.Exponential.Out)
+              .chain(
+                new TWEEN.Tween(icoLinesRef.current.scale)
+                  .to({ x: 1.35 * m, y: 1.35 * m, z: 1.35 * m }, 2000)
+                  .easing(TWEEN.Easing.Cubic.Out)
+              )
+              .start();
+          }
+
           miniNebulaeRef.current = [];
           clickCountRef.current = 0;
           overloadCountRef.current = 0;
+
+          setTimeout(() => {
+            if (activeEffectRef.current === 'nebula') {
+              targetSpeedRef.current = 0.15;
+            }
+          }, 2000);
 
           setTimeout(() => {
             if (orbitGroupRef.current && activeEffectRef.current === 'nebula') {
@@ -548,7 +774,8 @@ function HomeCanvas() {
               orbitGroupRef.current.scale.set(0.5 * m, 0.5 * m, 0.5 * m);
             }
             setNebulaHint(`Core stabilized. ${actionWord} to synthesize [0/4]`);
-          }, 850);
+            setProgressStep(0);
+          }, 3000);
         }
       }
     };
@@ -579,6 +806,15 @@ function HomeCanvas() {
       ringMaterial.dispose();
       nucleiGeo.dispose();
       nucleiMat.dispose();
+      flashGeo.dispose();
+      flashMat.dispose();
+      shockGeo.dispose();
+      shockMat1.dispose();
+      shockMat2.dispose();
+      squareGeo.dispose();
+      circleGeo.dispose();
+      triangleGeo.dispose();
+      dustMat.dispose();
       renderer.dispose();
     };
   }, []);
@@ -627,7 +863,7 @@ function HomeCanvas() {
 
     const duration = 1200;
     const isMobile = window.innerWidth <= 767.98;
-    const m = isMobile ? 0.6 : 1; // 60% reducere pe mobil
+    const m = isMobile ? 0.6 : 1;
 
     if (activeEffect === 'core') {
       targetSpeedRef.current = 1;
@@ -635,14 +871,14 @@ function HomeCanvas() {
       new TWEEN.Tween(icoLines.scale).to({ x: 1 * m, y: 1 * m, z: 1 * m }, duration).easing(TWEEN.Easing.Cubic.Out).start();
       new TWEEN.Tween(orbitGroup.scale).to({ x: 1 * m, y: 1 * m, z: 1 * m }, duration).easing(TWEEN.Easing.Cubic.Out).start();
       new TWEEN.Tween(nucleiGroup.scale).to({ x: 0, y: 0, z: 0 }, duration).easing(TWEEN.Easing.Cubic.Out).start();
-     
+    
     } else if (activeEffect === 'quantum') {
       targetSpeedRef.current = 1.8; 
       new TWEEN.Tween(ico.scale).to({ x: 0.01, y: 0.01, z: 0.01 }, duration).easing(TWEEN.Easing.Cubic.Out).start();
       new TWEEN.Tween(icoLines.scale).to({ x: 1.3 * m, y: 1.3 * m, z: 1.3 * m }, duration).easing(TWEEN.Easing.Cubic.Out).start();
       new TWEEN.Tween(orbitGroup.scale).to({ x: 1.5 * m, y: 1.5 * m, z: 1.5 * m }, duration).easing(TWEEN.Easing.Cubic.Out).start();
       new TWEEN.Tween(nucleiGroup.scale).to({ x: 1 * m, y: 1 * m, z: 1 * m }, duration).easing(TWEEN.Easing.Cubic.Out).start();
-     
+    
     } else if (activeEffect === 'nebula') {
       targetSpeedRef.current = 0.15;
       new TWEEN.Tween(ico.scale).to({ x: 1.25 * m, y: 1.25 * m, z: 1.25 * m }, duration).easing(TWEEN.Easing.Cubic.Out).start();
@@ -652,6 +888,42 @@ function HomeCanvas() {
     }
 
   }, [activeEffect]);
+
+  const handleEffectChange = (effect) => {
+    if (activeEffect === effect || isTransitioningRef.current) return;
+
+    isTransitioningRef.current = true;
+
+    if (effect === 'nebula') {
+      playCoreTransitionSound(); 
+
+      setTimeout(() => {
+        playWindNebulaSound();
+      }, 400);
+
+      if (muteBackgroundAudio) {
+        muteBackgroundAudio();
+      }
+    } else {
+      stopWindNebulaSound();
+      if (restoreBackgroundAudio) {
+        restoreBackgroundAudio();
+      }
+      playCoreTransitionSound();
+    }
+
+    setActiveEffect(effect);
+
+    const duration = 1200;
+    isMorphingRef.current = true;
+
+    setTimeout(() => {
+      isMorphingRef.current = false;
+      isTransitioningRef.current = false;
+    }, duration);
+  };
+
+  const hudAnimationClass = hudGlowKey > 0 ? 'animate-glow' : '';
 
   return (
     <>
@@ -663,29 +935,50 @@ function HomeCanvas() {
       <div className={`canvas_effects_controls ${openFirst ? 'visible' : 'hidden'}`}>
         <button 
           className={activeEffect === 'core' ? 'active' : ''} 
-          onClick={() => setActiveEffect('core')}
+          onClick={() => handleEffectChange('core')}
         >
           CORE
         </button>
         <button 
           className={activeEffect === 'quantum' ? 'active' : ''} 
-          onClick={() => setActiveEffect('quantum')}
+          onClick={() => handleEffectChange('quantum')}
         >
           QUANTUM
         </button>
         <button 
           className={activeEffect === 'nebula' ? 'active' : ''} 
-          onClick={() => setActiveEffect('nebula')}
+          onClick={() => handleEffectChange('nebula')}
         >
           NEBULA
         </button>
       </div>
 
-        {activeEffect === 'nebula' && openFirst && nebulaHint && (
-          <div className="nebula_hud_hint">
-            {nebulaHint}
+      {activeEffect === 'nebula' && openFirst && nebulaHint && (
+        <div 
+          key={hudGlowKey}
+          className={`nebula_hud_hint ${hudAnimationClass}`}
+        >
+          <div>{nebulaHint}</div>
+
+          {/* Bara de progres pe segmente (gri -> alb intens) */}
+          <div className="nebula_progress_bar">
+            {[1, 2, 3, 4, 5, 6, 7].map((step) => {
+              const isActive = step <= progressStep;
+              let modifierClass = '';
+              if (isActive) {
+                modifierClass = step <= 4 ? 'active-synth' : 'active-intense';
+              }
+
+              return (
+                <div 
+                  key={step} 
+                  className={`nebula_progress_segment ${modifierClass}`}
+                />
+              );
+            })}
           </div>
-         )}
+        </div>
+      )}
     </>
   );
 }

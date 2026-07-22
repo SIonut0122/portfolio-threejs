@@ -1,3 +1,9 @@
+$color-white: #ffffff;
+$color-black: #000000;
+$color-glass: rgba(12, 12, 15, 0.85);
+$border-light: rgba(255, 255, 255, 0.2);
+$border-glass: rgba(255, 255, 255, 0.08);
+
 @font-face {
   font-family: "RobotoSlabBold";
   src: url("/fonts/RobotoSlab-Bold.ttf") format("truetype");
@@ -6,47 +12,47 @@
 }
 
 @mixin displayFlex() {
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-pack: center;
-      -ms-flex-pack: center;
-          justify-content: center;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
+  justify-content: center;
+  align-items: center;
 }
 
 @mixin displayFlexColumn() {
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-      -ms-flex-direction: column;
-          flex-direction: column;
-  -webkit-box-pack: start;
-      -ms-flex-pack: start;
-          justify-content: flex-start;
-  -webkit-box-align: start;
-      -ms-flex-align: start;
-          align-items: flex-start;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
 }
+
 @mixin disable-select {
   -webkit-user-select: none;
   -moz-user-select: none;
-  -khtml-user-select: none;
   -ms-user-select: none;
+  user-select: none;
 }
+
 @mixin elipsisText {
   display: -webkit-box;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  -o-text-overflow: ellipsis;
-     text-overflow: ellipsis;
+  text-overflow: ellipsis;
 }
 
 .overflow-disabled {
   overflow: hidden !important;
 }
 
+/* SCROLLBAR CUSTOM DESKTOP */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-bg-base); 
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-main); 
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: $color-white; 
+}

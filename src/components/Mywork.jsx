@@ -1,21 +1,12 @@
-import { useEffect, useState, useRef, useContext } from 'react';
+import { useContext, useEffect, useState, useRef } from 'react';
 import { MainContext } from "./Home";
-import sigurantapenet from '../assets/images/projects/sigurantapenet.png';
-import ecommlap from '../assets/images/projects/ecommlap.png';
-import ecommtdesign from '../assets/images/projects/ecommtdesign.png';
-import ecommjager from '../assets/images/projects/ecommjager.png';
-import musicplayer from '../assets/images/projects/musicplayer.png';
-import livechatv20 from '../assets/images/projects/livechatv20.png';
-import pizzadelivery from '../assets/images/projects/pizzadelivery.png';
-import imgfbhost from '../assets/images/projects/imgfbhost.png';
-import coffeshop from '../assets/images/projects/coffeshop.png';
-import fooddelivery from '../assets/images/projects/fooddelivery.png';
-import ecommtv from '../assets/images/projects/ecommtv.png';
+import { MYWORK_DATA } from '../data/portfolioData';
 
 function Mywork() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [mobileActiveIndex, setMobileActiveIndex] = useState(0);
   const [showMobileDetails, setShowMobileDetails] = useState(false);
+  const [hasScrolled, setHasScrolled] = useState(false);
   
   const containerRef = useRef(null);
   const scrollContainerRef = useRef(null);
@@ -26,29 +17,7 @@ function Mywork() {
   const isScrollingRef = useRef(false);
   const touchStartYRef = useRef(0);
 
-  const projects = [
-    { name: 'Startech Team', year: '2023', tech: 'HTML • CSS • JS • LARAVEL', desc: 'Sistem B2B interactiv axat pe optimizarea fluxurilor de lucru și managementul datelor.', url: 'https://startechteam.ro/acasa', img: sigurantapenet, top: '15%', left: '10%', speed: -0.02 },
-    { name: 'Sigurantapenet', year: '2024', tech: 'HTML • CSS • JS • PHP', desc: 'Portal informativ și de prevenție, dedicat securității cibernetice și protecției datelor.', url: 'https://www.sigurantapenet.ro', img: sigurantapenet, top: '16%', left: '42%', speed: 0.02 },
-    { name: 'eCommerceTv', year: '2019', tech: 'THREEJS • WEBGL • SHADERS • CSS', desc: 'Explorare vizuală 3D pentru e-commerce, integrând WebGL pentru randări de produs.', url: 'https://sionut0122.github.io/ecommercetv/', img: ecommtv, top: '24%', left: '16%', speed: -0.03 },
-    { name: 'Ecommlap', year: '2023', tech: 'REACT • SCSS • THREEJS • GSAP', desc: 'Experiență de cumpărături fluidă, cu tranziții cinematice și interfețe interactive.', url: 'https://sionut0122.github.io/ecommlap/', img: ecommlap, top: '22%', left: '72%', speed: 0.03 },
-    { name: 'eCommerceTDesign', year: '2022', tech: 'REACT • REDUX • BOOTSTRAP', desc: 'Arhitectură React modulară pentru o performanță ridicată în navigarea produselor.', url: 'https://sionut0122.github.io/ecommercetdesign/#/', img: ecommtdesign, top: '34%', left: '8%', speed: -0.04 },
-    { name: 'eCommerceJager', year: '2022', tech: 'REACT • CONTEXT • MATERIALUI', desc: 'Design minimalist de magazin online, optimizat pentru conversie și viteză.', url: 'https://sionut0122.github.io/ecommercejager/#/', img: ecommjager, top: '33%', left: '56%', speed: 0.02 },
-    { name: 'musicPlayer', year: '2019', tech: 'VANILLA JS • CSS3 • AUDIO API', desc: 'Aplicație nativă web pentru procesare și redare audio cu egalizator vizual.', url: 'https://sionut0122.github.io/musicplayer/', img: musicplayer, top: '44%', left: '76%', speed: -0.03 },
-    { name: 'Livechat v.2.0', year: '2019', tech: 'NODEJS • SOCKETIO • REACT', desc: 'Sistem de comunicare bidirecțională bazat pe WebSockets, redus la esențial.', url: 'https://sionut0122.github.io/LiveChatV2.0/', img: livechatv20, top: '48%', left: '30%', speed: 0.04 },
-    { name: 'pizzaDelivery', year: '2022', tech: 'REACT • ROUTER • FIREBASE', desc: 'Aplicație de tip ordering cu actualizări live ale statusului, via Firebase.', url: 'https://sionut0122.github.io/pizzaDelivery/#/', img: pizzadelivery, top: '56%', left: '55%', speed: -0.01 },
-    { name: 'ImgFBHost', year: '2019', tech: 'JS • FETCH API • LIVE STORAGE', desc: 'Utilitar rapid pentru stocarea și procesarea imaginilor direct în cloud.', url: 'https://sionut0122.github.io/imgfbhost/', img: imgfbhost, top: '65%', left: '12%', speed: 0.03 },
-    { name: 'CoffeeShop', year: '2022', tech: 'HTML5 • SASS • FLEXBOX', desc: 'Landing page elegant, construit pe principii flexbox și micro-interacțiuni.', url: 'https://sionut0122.github.io/CoffeeShop/#/', img: coffeshop, top: '67%', left: '40%', speed: -0.02 },
-    { name: 'foodDelivery', year: '2020', tech: 'REACT • HOOKS • REST API', desc: 'Soluție completă pentru preluarea și rutarea comenzilor folosind REST API.', url: 'https://sionut0122.github.io/fooddelivery/', img: fooddelivery, top: '72%', left: '68%', speed: 0.05 }
-  ];
-
-  const crosshairs = [
-    { top: '18%', left: '20%', delay: '0s', label: 'SEC // 01' },
-    { top: '12%', left: '75%', delay: '2s' },
-    { top: '45%', left: '12%', delay: '4s' },
-    { top: '55%', left: '85%', delay: '1.5s', label: '[ 44.42, 26.10 ]' },
-    { top: '80%', left: '28%', delay: '3.5s' },
-    { top: '75%', left: '72%', delay: '5s', label: 'EET' }
-  ];
+  const { projects, crosshairs } = MYWORK_DATA;
 
   useEffect(() => {
     document.querySelectorAll('.mobnav-btn').forEach(el => el.classList.remove('mobmenu-btn-active'));
@@ -68,52 +37,28 @@ function Mywork() {
       posDoc.style.setProperty('--x', mouseX + "px");
       posDoc.style.setProperty('--y', mouseY + "px");
 
-      const maxCircleSize = 500;
-      let dynamicSize = maxCircleSize;
+      let dynamicSize = 500;
+      if (e.clientY < 250) dynamicSize = Math.max(300, e.clientY * 2);
       
-      if (e.clientY < 250) {
-        dynamicSize = Math.max(300, e.clientY * 2);
-      }
-      
-      const distFromLeft = e.clientX;
-      const distFromRight = window.innerWidth - e.clientX;
-      const minHorizontalDist = Math.min(distFromLeft, distFromRight);
-
-      if (minHorizontalDist < 250) {
-        const edgeSize = Math.max(300, minHorizontalDist * 2);
-        dynamicSize = Math.min(dynamicSize, edgeSize);
-      }
+      const minHorizontalDist = Math.min(e.clientX, window.innerWidth - e.clientX);
+      if (minHorizontalDist < 250) dynamicSize = Math.min(dynamicSize, Math.max(300, minHorizontalDist * 2));
 
       posDoc.style.setProperty('--cursor-size', dynamicSize + "px");
 
       if (infoBoxRef.current) {
-        if (e.clientY > window.innerHeight * 0.55) {
-          infoBoxRef.current.classList.add('flip-y');
-        } else {
-          infoBoxRef.current.classList.remove('flip-y');
-        }
-
-        if (e.clientX < 350) {
-          infoBoxRef.current.classList.add('flip-x');
-        } else {
-          infoBoxRef.current.classList.remove('flip-x');
-        }
+        infoBoxRef.current.classList.toggle('flip-y', e.clientY > window.innerHeight * 0.55);
+        infoBoxRef.current.classList.toggle('flip-x', e.clientX < 350);
       }
 
       const items = posDoc.querySelectorAll('.scatter_item');
-      const centerX = window.innerWidth / 2;
-      const centerY = window.innerHeight / 2;
-      const moveX = e.clientX - centerX;
-      const moveY = e.clientY - centerY;
-
+      const centerX = window.innerWidth / 2, centerY = window.innerHeight / 2;
       items.forEach((item) => {
         const speed = parseFloat(item.getAttribute('data-speed')) || 0.02;
-        item.style.transform = `translate(${moveX * speed}px, ${moveY * speed}px)`;
+        item.style.transform = `translate(${(e.clientX - centerX) * speed}px, ${(e.clientY - centerY) * speed}px)`;
       });
     };
 
     window.addEventListener('mousemove', handleMouseMove);
-
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
       document.body.style.overflow = '';
@@ -129,57 +74,27 @@ function Mywork() {
 
     const triggerDetailsTimeout = () => {
       if (mobileTimeoutRef.current) clearTimeout(mobileTimeoutRef.current);
-      mobileTimeoutRef.current = setTimeout(() => {
-        setShowMobileDetails(true);
-      }, 500); 
+      mobileTimeoutRef.current = setTimeout(() => setShowMobileDetails(true), 500); 
     };
 
     const navigateToItem = (nextIndex) => {
       if (nextIndex < 0 || nextIndex >= projects.length) return;
       
+      setHasScrolled(true);
       isScrollingRef.current = true;
       setShowMobileDetails(false);
       setMobileActiveIndex(nextIndex);
 
-      const itemHeight = 110; 
-      scrollContainer.scrollTo({
-        top: nextIndex * itemHeight,
-        behavior: 'smooth'
-      });
-
-      setTimeout(() => {
-        isScrollingRef.current = false;
-        triggerDetailsTimeout();
-      }, 450); 
+      scrollContainer.scrollTo({ top: nextIndex * 110, behavior: 'smooth' });
+      setTimeout(() => { isScrollingRef.current = false; triggerDetailsTimeout(); }, 450); 
     };
 
-    const handleWheel = (e) => {
-      e.preventDefault();
-      if (isScrollingRef.current) return;
-
-      if (e.deltaY > 0) {
-        navigateToItem(mobileActiveIndex + 1);
-      } else if (e.deltaY < 0) {
-        navigateToItem(mobileActiveIndex - 1);
-      }
-    };
-
-    const handleTouchStart = (e) => {
-      touchStartYRef.current = e.touches[0].clientY;
-    };
-
+    const handleWheel = (e) => { e.preventDefault(); if (!isScrollingRef.current) navigateToItem(mobileActiveIndex + Math.sign(e.deltaY)); };
+    const handleTouchStart = (e) => touchStartYRef.current = e.touches[0].clientY;
     const handleTouchEnd = (e) => {
       if (isScrollingRef.current) return;
-      const touchEndY = e.changedTouches[0].clientY;
-      const diffY = touchStartYRef.current - touchEndY;
-
-      if (Math.abs(diffY) > 30) { 
-        if (diffY > 0) {
-          navigateToItem(mobileActiveIndex + 1);
-        } else {
-          navigateToItem(mobileActiveIndex - 1);
-        }
-      }
+      const diffY = touchStartYRef.current - e.changedTouches[0].clientY;
+      if (Math.abs(diffY) > 30) navigateToItem(mobileActiveIndex + Math.sign(diffY));
     };
 
     scrollContainer.addEventListener('wheel', handleWheel, { passive: false });
@@ -194,23 +109,15 @@ function Mywork() {
     };
   }, [mobileActiveIndex, projects.length]);
 
-  const currentActiveIndex = window.innerWidth <= 767.98 ? mobileActiveIndex : activeIndex;
-  const currentProject = projects[currentActiveIndex];
+  const currentProject = projects[window.innerWidth <= 767.98 ? mobileActiveIndex : activeIndex];
   const formattedText = currentProject ? `${currentProject.tech} • ` : "";
-
-  const hasItemsAbove = mobileActiveIndex > 0;
-  const hasItemsBelow = mobileActiveIndex < projects.length - 1;
 
   return (
     <div ref={containerRef} className='mywork_container w-100'>
       
       <div className="ambient-crosshairs-grid">
         {crosshairs.map((c, i) => (
-          <div 
-            key={i} 
-            className="crosshair-mark" 
-            style={{ top: c.top, left: c.left, animationDelay: c.delay }}
-          >
+          <div key={i} className="crosshair-mark" style={{ top: c.top, left: c.left, animationDelay: c.delay }}>
             <div className="cross-lines"></div>
             {c.label && <span className="cross-label">{c.label}</span>}
           </div>
@@ -219,44 +126,39 @@ function Mywork() {
 
       {window.innerWidth <= 767.98 && (
         <>
-          <div className={`mobile-nav-arrow arrow-top ${showMobileDetails && hasItemsAbove ? 'visible' : ''}`}>
-            <span></span>
-          </div>
-          <div className={`mobile-nav-arrow arrow-bottom ${showMobileDetails && hasItemsBelow ? 'visible' : ''}`}>
-            <span></span>
-          </div>
+          {!hasScrolled && <div className="mobile-swipe-hint">Swipe</div>}
+
+          <div className={`mobile-nav-arrow arrow-top ${showMobileDetails && mobileActiveIndex > 0 ? 'visible' : ''}`}><span></span></div>
+          <div className={`mobile-nav-arrow arrow-bottom ${showMobileDetails && mobileActiveIndex < projects.length - 1 ? 'visible' : ''}`}><span></span></div>
         </>
       )}
 
-      <div 
-        ref={scrollContainerRef} 
-        className={`scatter_grid_wrapper ${window.innerWidth <= 767.98 && showMobileDetails ? 'is-darkened' : ''}`}
-      >
+      <div ref={scrollContainerRef} className={`scatter_grid_wrapper ${window.innerWidth <= 767.98 && showMobileDetails ? 'is-darkened' : ''}`}>
         {projects.map((project, index) => {
           const isFocusedMobile = window.innerWidth <= 767.98 && mobileActiveIndex === index;
           return (
             <div 
               key={index} 
               className={`scatter_item ${isFocusedMobile ? 'is-focused' : ''} ${isFocusedMobile && showMobileDetails ? 'show-details' : ''}`}
-              data-speed={project.speed}
-              style={{ top: project.top, left: project.left }}
+              data-speed={project.speed} style={{ top: project.top, left: project.left }}
               onMouseEnter={() => setActiveIndex(index)}
             >
-              <a href={project.url} target="_blank" rel="noreferrer" data-text={project.name}>
+              <a href={project.url} target="_blank" rel="noreferrer" data-text={project.name} aria-label={`View project ${project.name}`}>
                 <img className="desktop-preview" src={project.img} alt=''/>
-                <span className="project_title_text">
-                  {project.name}
-                </span>
+                <span className="project_title_text">{project.name}</span>
               </a>
-
               <p className="mobile-tech-text">{project.tech}</p>
               <p className="mobile-year-text">{project.year}</p>
 
               {isFocusedMobile && (
                 <div className="mobile-reveal-panel">
-                  <a href={project.url} target="_blank" rel="noreferrer" className="mobile-img-wrapper">
+                  <a href={project.url} target="_blank" rel="noreferrer" className="mobile-img-wrapper" aria-label={`View project ${project.name}`}>
                     <img src={project.img} alt="Preview" />
                   </a>
+                  <div className='mobile_cursor_info_box'>
+                    <span className='info-label'>// SYS_DESC</span>
+                    <p className='info-desc'>{project.desc}</p>
+                  </div>
                 </div>
               )}
             </div>
@@ -266,9 +168,7 @@ function Mywork() {
         <div ref={cursorRef} className='mywork_sec_cursor'>
           <div className='cursor_circle_visual'>
             <span className='orbit-band'>
-              <div className='band-front'>
-                <span className='marquee'>{(formattedText + " ").repeat(10)}</span>
-              </div>
+              <div className='band-front'><span className='marquee'>{(formattedText + " ").repeat(10)}</span></div>
             </span>
             <span className='desktop-bg-giant-year'>{currentProject?.year}</span>
           </div>
@@ -280,7 +180,6 @@ function Mywork() {
             <p className='info-desc'>{currentProject?.desc}</p>
           </div>
         </div>
-
       </div>
     </div>
   );
