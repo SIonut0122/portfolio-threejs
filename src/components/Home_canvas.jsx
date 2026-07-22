@@ -7,6 +7,7 @@ import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 import PostProcessingMod from '../assets/js/postprocessing';
 import TWEEN from 'tween';
 import landscape from '../assets/images/1.jpeg';
+import NebulaCursor from '../components/NebulaCursor';
 import { vertexShader, fragmentShader, fragmentShader1 } from '../assets/shaders/homeShaders';
 import { 
   playCoreTransitionSound, 
@@ -80,10 +81,10 @@ function HomeCanvas() {
   useEffect(() => {
     activeEffectRef.current = activeEffect;
     const isMobile = window.innerWidth <= 767.98;
-    const actionWord = isMobile ? "Tap" : "Click";
+    const actionWord = isMobile ? "Touch" : "Click / Space";
 
     if (activeEffect === 'nebula') {
-      setNebulaHint(`${actionWord} canvas to synthesize micro-nebulae [0/4]`);
+      setNebulaHint(`${actionWord} to synthesize micro-nebulae [0/4]`);
       setProgressStep(0);
     } else {
       setNebulaHint("");
@@ -582,17 +583,17 @@ function HomeCanvas() {
         .start();
 
       const isMobile = window.innerWidth <= 767.98;
-      const actionWord = isMobile ? "Tap" : "Click";
+      const actionWord = isMobile ? "Touch" : "Click / Space";
       setNebulaHint(`Core cooled down. ${actionWord} to overload core`);
     };
 
-    const handleClick = (e) => {
+    const triggerNebulaInteraction = (target = null) => {
       if (activeEffectRef.current !== 'nebula') return;
-      if (e.target.closest('.canvas_effects_controls') || e.target.closest('button')) return;
+      if (target && target.closest && (target.closest('.canvas_effects_controls') || target.closest('button'))) return;
 
       const isMobile = window.innerWidth <= 767.98;
       const m = isMobile ? 0.6 : 1;
-      const actionWord = isMobile ? "Tap" : "Click";
+      const actionWord = isMobile ? "Touch" : "Click / Space";
 
       setHudGlowKey(prev => prev + 1);
 
@@ -899,6 +900,20 @@ function HomeCanvas() {
       }
     };
 
+    const handleClick = (e) => {
+      triggerNebulaInteraction(e.target);
+    };
+
+    const handleKeyDown = (e) => {
+      if (e.code === 'Space' || e.key === ' ') {
+        if (['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName)) return;
+        if (activeEffectRef.current === 'nebula') {
+          e.preventDefault();
+          triggerNebulaInteraction(null);
+        }
+      }
+    };
+
     const handleResize = () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
@@ -910,6 +925,7 @@ function HomeCanvas() {
     window.addEventListener('touchmove', handleTouchMove, { passive: true });
     window.addEventListener('touchstart', handleTouchStart, { passive: true });
     window.addEventListener('click', handleClick);
+    window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('resize', handleResize);
 
     return () => {
@@ -923,7 +939,9 @@ function HomeCanvas() {
       window.removeEventListener('touchmove', handleTouchMove);
       window.removeEventListener('touchstart', handleTouchStart);
       window.removeEventListener('click', handleClick);
+      window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('resize', handleResize);
+
       if (containerRef.current && containerRef.current.contains(renderer.domElement)) {
         containerRef.current.removeChild(renderer.domElement);
       }
@@ -1064,6 +1082,8 @@ function HomeCanvas() {
 
   return (
     <>
+      <NebulaCursor isActive={activeEffect === 'nebula' && openFirst} />
+
       <div 
         ref={containerRef} 
         className='home_container_cont'

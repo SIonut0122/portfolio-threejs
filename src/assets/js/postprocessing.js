@@ -44,8 +44,7 @@ let PostProcessingMod = {
             vec2 dxy = pixelSize / resolution;
             vec2 coord = dxy * floor(vUv / dxy);
             vec4 textureColor = texture2D(tDiffuse, vUv);
-        
-            // Create a grayscale texture with noise
+
             gl_FragColor = vec4(color + vec3(val), 1.0);
         }
         

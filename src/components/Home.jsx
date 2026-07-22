@@ -71,7 +71,7 @@ function Home() {
   }, []);
 
   const toggleAudio = () => {
-    playClickSound();
+    playClickSound(true);
     if (!audioRef.current) return;
     
     if (isMuted) {
@@ -84,7 +84,7 @@ function Home() {
   };
 
   const toggleSFX = () => {
-    playClickSound();
+    playClickSound(true);
     const newState = !isSfxMuted;
     setIsSfxMuted(newState);
     setSFXMuted(newState);
@@ -101,7 +101,6 @@ function Home() {
 
   const restoreBackgroundAudio = () => {
     if (audioRef.current) {
-      // Restaurează muzica doar dacă era pornită înainte de auto-mute ȘI utilizatorul nu a setat manual audio pe OFF în acest timp
       if (wasPlayingBeforeAutoMuteRef.current && !isMutedRef.current) {
         audioRef.current.play().catch(err => console.log(err));
       }
@@ -112,7 +111,7 @@ function Home() {
   return (
     <>
       <div className='home_container_full w-100'>
-        <MainContext.Provider value={{  
+        <MainContext.Provider value={{   
             canvasIsVisible, setCanvasIsVisible,
             wireFrameOn, setWireFrameOn,
             openAboutme, setOpenAboutme,
@@ -124,11 +123,13 @@ function Home() {
           <Header /> 
 
           <div className="audio-controls-wrapper">
-            <button className="audio-control-btn" onClick={toggleAudio} type="button">
-              {isMuted ? '[ AUDIO: OFF ]' : '[ AUDIO: ON ]'}
+            <button className={`audio-control-btn ${!isMuted ? 'active' : ''}`} onClick={toggleAudio} type="button">
+              <span className="status-indicator"></span>
+              <span className="btn-text">{isMuted ? 'AUDIO: OFF' : 'AUDIO: ON'}</span>
             </button>
-            <button className="audio-control-btn" onClick={toggleSFX} type="button">
-              {isSfxMuted ? '[ SFX: OFF ]' : '[ SFX: ON ]'}
+            <button className={`audio-control-btn ${!isSfxMuted ? 'active' : ''}`} onClick={toggleSFX} type="button">
+              <span className="status-indicator"></span>
+              <span className="btn-text">{isSfxMuted ? 'SFX: OFF' : 'SFX: ON'}</span>
             </button>
           </div>
           <HomeCanvas />

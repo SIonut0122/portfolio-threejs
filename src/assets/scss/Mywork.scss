@@ -87,9 +87,10 @@
     font-size: 9px;
     font-family: RobotoSlab, monospace;
     letter-spacing: 3px;
-    color: rgba(255, 255, 255, 0.35);
+    color: var(--color-accent, #00ffaa);
+    opacity: 0.45;
     white-space: nowrap;
-    text-shadow: 0 0 5px rgba(255, 255, 255, 0.1);
+    text-shadow: 0 0 5px rgba(0, 255, 170, 0.2);
   }
 }
 
@@ -108,8 +109,9 @@
   position: relative;
   width: 100%;
   min-height: 100vh;
-  padding: 100px 0;
+  padding: 170px 0 100px 0; /* Padding mărit în partea de sus pentru distanțare de Header */
   opacity: 1;
+  box-sizing: border-box;
 }
 
 .scatter_item {
@@ -371,7 +373,7 @@
     background: $color-glass;
     backdrop-filter: blur(12px);
     border: 1px solid $border-glass;
-    border-left: 2px solid $color-white;
+    border-left: 2px solid var(--color-accent, #00ffaa);
     opacity: 0;
     transform: translateY(25px) scale(0.95);
     filter: blur(6px);
@@ -394,12 +396,12 @@
 
     .info-label {
       font-size: 9px;
-      color: $color-white;
+      color: var(--color-accent, #00ffaa);
       text-transform: uppercase;
       letter-spacing: 2px;
       margin-bottom: 6px;
       display: block;
-      opacity: 0.5;
+      opacity: 0.9;
       font-family: RobotoSlab, monospace;
     }
 
@@ -423,7 +425,7 @@
     right: auto;
     left: 170px;
     border-left: 1px solid $border-glass;
-    border-right: 2px solid $color-white;
+    border-right: 2px solid var(--color-accent, #00ffaa);
 
     &::before {
       right: auto;
@@ -632,7 +634,8 @@
 
   .scatter_grid_wrapper {
     min-height: 100vh;
-    padding-bottom: 80px !important;
+    padding-top: 180px !important; /* Protecție pe Desktop */
+    padding-bottom: 120px !important;
   }
 
   @media (max-height: 680px) {
@@ -713,8 +716,8 @@
     width: 100%;
     height: 100%;
     padding: 0 20px;
-    padding-top: calc(35vh - 55px);
-    padding-bottom: calc(65vh - 55px);
+    padding-top: calc(35vh - 55px) !important;
+    padding-bottom: calc(65vh - 55px) !important;
     gap: 0px;
     scrollbar-width: none;
     transition: opacity 0.5s cubic-bezier(0.25, 1, 0.5, 1);
@@ -793,7 +796,7 @@
       font-size: 11px;
       font-weight: 700;
       letter-spacing: 1.5px;
-      color: var(--color-main);
+      color: var(--color-accent, #00ffaa);
       text-transform: uppercase;
       margin: 8px 0 0 0;
       opacity: 0;
@@ -901,19 +904,19 @@
       background: $color-glass;
       backdrop-filter: blur(12px);
       border: 1px solid $border-glass;
-      border-left: 2px solid $color-white;
+      border-left: 2px solid var(--color-accent, #00ffaa);
       box-shadow: 0 15px 35px rgba(0, 0, 0, 0.8);
       text-align: left;
       border-radius: 4px;
 
       .info-label {
         font-size: 9px;
-        color: $color-white;
+        color: var(--color-accent, #00ffaa);
         text-transform: uppercase;
         letter-spacing: 2px;
         margin-bottom: 4px;
         display: block;
-        opacity: 0.5;
+        opacity: 0.9;
         font-family: RobotoSlab, monospace;
       }
 
@@ -972,8 +975,8 @@
 @media (max-height: 500px) and (orientation: landscape) {
   @media (max-width: 767.98px) {
     .scatter_grid_wrapper {
-      padding-top: calc(28vh - 40px);
-      padding-bottom: calc(72vh - 40px);
+      padding-top: calc(28vh - 40px) !important;
+      padding-bottom: calc(72vh - 40px) !important;
     }
 
     .scatter_item {

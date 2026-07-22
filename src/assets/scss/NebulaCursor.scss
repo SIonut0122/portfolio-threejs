@@ -1,0 +1,118 @@
+@media (min-width: 768px) {
+  body.nebula-cursor-active,
+  body.nebula-cursor-active * {
+    cursor: none !important;
+  }
+}
+
+.nebula-cursor-layer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 9999;
+  overflow: hidden;
+}
+
+.quantum-reticle {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 40px;
+  height: 40px;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  will-change: transform;
+  transition: transform 0.05s ease-out;
+
+  .reticle-center {
+    width: 4px;
+    height: 4px;
+    background-color: #ffffff;
+    border-radius: 50%;
+    box-shadow: 0 0 6px #ffffff, 0 0 10px rgba(0, 255, 170, 0.8);
+    z-index: 2;
+  }
+
+  .reticle-ring {
+    position: absolute;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 1px dashed rgba(255, 255, 255, 0.5);
+    animation: rotateReticle 10s linear infinite;
+  }
+
+  .reticle-bracket {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border-color: rgba(0, 255, 170, 0.7);
+    border-style: solid;
+
+    &.top-left {
+      top: 2px;
+      left: 2px;
+      border-width: 1.5px 0 0 1.5px;
+    }
+    &.top-right {
+      top: 2px;
+      right: 2px;
+      border-width: 1.5px 1.5px 0 0;
+    }
+    &.bottom-left {
+      bottom: 2px;
+      left: 2px;
+      border-width: 0 0 1.5px 1.5px;
+    }
+    &.bottom-right {
+      bottom: 2px;
+      right: 2px;
+      border-width: 0 1.5px 1.5px 0;
+    }
+  }
+}
+
+.quantum-click-shockwave {
+  position: fixed;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 255, 170, 0.9);
+  box-shadow: 0 0 12px rgba(0, 255, 170, 0.6);
+  pointer-events: none;
+  animation: tacticalWave 0.55s cubic-bezier(0.1, 0.8, 0.25, 1) forwards;
+}
+
+@keyframes rotateReticle {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes tacticalWave {
+  0% {
+    transform: translate(-50%, -50%) scale(0.3);
+    opacity: 1;
+    border-width: 2px;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(4.2);
+    opacity: 0;
+    border-width: 1px;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .quantum-reticle {
+    display: none !important;
+  }
+}

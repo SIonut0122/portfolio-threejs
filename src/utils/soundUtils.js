@@ -6,6 +6,7 @@ import nebulaCoreDangerAudioFile from '../assets/audio/nebula_core_danger.mp3';
 import nebulaExplosionAudioFile from '../assets/audio/nebula_explosion.mp3';
 import coolingDownAudioFile from '../assets/audio/cooling_down.mp3';
 
+let clickAudioInstance = null;
 let nebulaAudioInstance = null;
 let dangerAudioInstance = null;
 
@@ -17,11 +18,17 @@ export const setSFXMuted = (isMuted) => {
   if (dangerAudioInstance) dangerAudioInstance.muted = isMuted;
 };
 
-export const playClickSound = () => {
-  if (sfxMuted) return;
-  const clickAudio = new Audio(clickAudioFile);
-  clickAudio.volume = 0.03;
-  clickAudio.play().catch(err => console.log(err));
+export const playClickSound = (forcePlay = false) => {
+  if (sfxMuted && !forcePlay) return;
+
+  if (!clickAudioInstance) {
+    clickAudioInstance = new Audio(clickAudioFile);
+    clickAudioInstance.volume = 0.03;
+  }
+
+  const soundClone = clickAudioInstance.cloneNode();
+  soundClone.volume = 0.03;
+  soundClone.play().catch(err => console.log(err));
 };
 
 export const playCoreTransitionSound = () => {
