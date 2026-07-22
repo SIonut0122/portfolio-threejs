@@ -26,7 +26,10 @@ function First() {
     <div className='first_container w-100'>
       <section className='first_cont_section'>
         <h3>{FIRST_DATA.title1}</h3>
-        <h3>{FIRST_DATA.title2}</h3>
+        <h3>
+          <span>{FIRST_DATA.title2.slice(0, 3)}</span>
+          {FIRST_DATA.title2.slice(3)}
+        </h3>
         
         <p className='first_subtitle'>
           {FIRST_DATA.subtitle.split(' ').map((word, wordIndex) => (

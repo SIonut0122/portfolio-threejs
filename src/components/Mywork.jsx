@@ -7,6 +7,7 @@ function Mywork() {
   const [mobileActiveIndex, setMobileActiveIndex] = useState(0);
   const [showMobileDetails, setShowMobileDetails] = useState(false);
   const [hasScrolled, setHasScrolled] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 767.98);
   
   const containerRef = useRef(null);
   const scrollContainerRef = useRef(null);
@@ -23,11 +24,18 @@ function Mywork() {
   useEffect(() => {
     document.querySelectorAll('.mobnav-btn').forEach(el => el.classList.remove('mobmenu-btn-active'));
     document.querySelector('.mobnav-mywork')?.classList.add('mobmenu-btn-active');
-    
+    document.title = '] MY WORK [ Ionut Stan - Front-End Developer';
+
     document.body.style.overflow = 'hidden';
     document.documentElement.style.overflow = 'hidden';
         
     const posDoc = containerRef.current;
+
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 767.98);
+    };
+
+    window.addEventListener('resize', handleResize);
     
     const handleMouseMove = (e) => {
       if (!posDoc || window.innerWidth <= 767.98) return;
@@ -62,8 +70,10 @@ function Mywork() {
     window.addEventListener('mousemove', handleMouseMove);
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('resize', handleResize);
       document.body.style.overflow = '';
       document.documentElement.style.overflow = '';
+      document.title = 'Ionut Stan - Front-End Developer';
       if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
     };
   }, []);
@@ -113,8 +123,11 @@ function Mywork() {
     };
   }, [mobileActiveIndex, projects.length]);
 
-  const currentProject = projects[window.innerWidth <= 767.98 ? mobileActiveIndex : activeIndex];
-  const formattedText = currentProject ? `${currentProject.tech} • ` : "";
+  const currentProject = projects[isMobile ? mobileActiveIndex : activeIndex];
+  // Formatăm lista de tehnologii înlocuind punctele simple cu " // "
+  const rawTech = currentProject?.tech || "";
+  const formattedTech = rawTech.replaceAll('•', '//');
+  const formattedText = currentProject ? `${formattedTech} // ` : "";
 
   return (
     <div ref={containerRef} className='mywork_container w-100'>
@@ -128,7 +141,7 @@ function Mywork() {
         ))}
       </div>
 
-      {window.innerWidth <= 767.98 && (
+      {isMobile && (
         <>
           {!hasScrolled && <div className="mobile-swipe-hint">Swipe</div>}
 
@@ -137,9 +150,9 @@ function Mywork() {
         </>
       )}
 
-      <div ref={scrollContainerRef} className={`scatter_grid_wrapper ${window.innerWidth <= 767.98 && showMobileDetails ? 'is-darkened' : ''}`}>
+      <div ref={scrollContainerRef} className={`scatter_grid_wrapper ${isMobile && showMobileDetails ? 'is-darkened' : ''}`}>
         {projects.map((project, index) => {
-          const isFocusedMobile = window.innerWidth <= 767.98 && mobileActiveIndex === index;
+          const isFocusedMobile = isMobile && mobileActiveIndex === index;
           return (
             <div 
               key={index} 
@@ -179,21 +192,26 @@ function Mywork() {
           );
         })}
 
-        <div ref={cursorRef} className='mywork_sec_cursor'>
-          <div className='cursor_circle_visual'>
-            <span className='orbit-band'>
-              <div className='band-front'><span className='marquee'>{(formattedText + " ").repeat(10)}</span></div>
-            </span>
-            <span className='desktop-bg-giant-year'>{currentProject?.year}</span>
-          </div>
-        </div>
+        {!isMobile && (
+          <>
+            <div ref={cursorRef} className='mywork_sec_cursor'>
+              <div className='cursor_circle_visual'>
+                <div className='cursor-plus-mark'></div>
+                <span className='orbit-band'>
+                  <div className='band-front'><span className='marquee'>{(formattedText + " ").repeat(10)}</span></div>
+                </span>
+                <span className='desktop-bg-giant-year'>{currentProject?.year}</span>
+              </div>
+            </div>
 
-        <div ref={infoBoxRef} className='cursor_info_box_wrapper'>
-          <div className='cursor_info_box'>
-            <span className='info-label'>// SYS_DESC</span>
-            <p className='info-desc'>{currentProject?.desc}</p>
-          </div>
-        </div>
+            <div ref={infoBoxRef} className='cursor_info_box_wrapper'>
+              <div className='cursor_info_box'>
+                <span className='info-label'>// SYS_DESC</span>
+                <p className='info-desc'>{currentProject?.desc}</p>
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

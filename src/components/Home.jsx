@@ -3,7 +3,7 @@ import HomeCanvas from "./Home_canvas";
 import Content from './Content';
 import Header from './Header';
 import ambientAudioFile from '../assets/audio/ambient_bg.mp3';
-import { setSFXMuted } from '../utils/soundUtils';
+import { setSFXMuted, playClickSound } from '../utils/soundUtils';
 
 export const MainContext = React.createContext();
 
@@ -14,40 +14,76 @@ function Home() {
   const [openMyWork, setOpenMyWork] = useState(false);
   const [openFirst, setOpenFirst] = useState(true);
   const [isMuted, setIsMuted] = useState(true);
-  
   const [isSfxMuted, setIsSfxMuted] = useState(false); 
   
   const audioRef = useRef(null);
-  const wasMusicPlayingRef = useRef(false);
+  const wasPlayingBeforeHideRef = useRef(false);
+  const sfxStateBeforeHideRef = useRef(false);
+
+  const isMutedRef = useRef(isMuted);
+  isMutedRef.current = isMuted;
+
+  const isSfxMutedRef = useRef(isSfxMuted);
+  isSfxMutedRef.current = isSfxMuted;
 
   useEffect(() => {
     audioRef.current = new Audio(ambientAudioFile);
     audioRef.current.loop = true;
     audioRef.current.volume = 0.05;
+    document.title = '] HOME [ Ionut Stan - Front-End Developer';
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        if (audioRef.current && !isMutedRef.current) {
+          wasPlayingBeforeHideRef.current = true;
+          audioRef.current.pause();
+        } else {
+          wasPlayingBeforeHideRef.current = false;
+        }
+
+        sfxStateBeforeHideRef.current = isSfxMutedRef.current;
+        if (!isSfxMutedRef.current) {
+          setSFXMuted(true);
+        }
+      } else {
+        if (wasPlayingBeforeHideRef.current && audioRef.current) {
+          audioRef.current.play().catch(err => console.log(err));
+          wasPlayingBeforeHideRef.current = false;
+        }
+
+        if (!sfxStateBeforeHideRef.current) {
+          setSFXMuted(false);
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
 
     return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
       if (audioRef.current) {
         audioRef.current.pause();
         audioRef.current = null;
       }
+      document.title = 'Ionut Stan - Front-End Developer';
     };
   }, []);
 
   const toggleAudio = () => {
+    playClickSound();
     if (!audioRef.current) return;
     
     if (isMuted) {
       audioRef.current.play().catch(err => console.log(err));
       setIsMuted(false);
-      wasMusicPlayingRef.current = false;
     } else {
       audioRef.current.pause();
       setIsMuted(true);
-      wasMusicPlayingRef.current = false;
     }
   };
 
   const toggleSFX = () => {
+    playClickSound();
     const newState = !isSfxMuted;
     setIsSfxMuted(newState);
     setSFXMuted(newState);
@@ -55,19 +91,15 @@ function Home() {
 
   const muteBackgroundAudio = () => {
     if (audioRef.current && !isMuted) {
-      wasMusicPlayingRef.current = true;
       audioRef.current.pause();
       setIsMuted(true);
-    } else {
-      wasMusicPlayingRef.current = false;
     }
   };
 
   const restoreBackgroundAudio = () => {
-    if (wasMusicPlayingRef.current && audioRef.current) {
+    if (audioRef.current) {
       audioRef.current.play().catch(err => console.log(err));
       setIsMuted(false);
-      wasMusicPlayingRef.current = false;
     }
   };
 
@@ -93,10 +125,6 @@ function Home() {
               {isSfxMuted ? '[ SFX: OFF ]' : '[ SFX: ON ]'}
             </button>
           </div>
-
-          <button className="d-none" id='whitefireframe' type='button'>White / wireframe</button>
-          <button className="d-none" id='blackwhiteframe' type='button'>Black / wireframe</button>
-
           <HomeCanvas />
           <Content />
             

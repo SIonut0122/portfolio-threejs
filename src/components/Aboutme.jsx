@@ -13,6 +13,8 @@ function ScrambleText({ text, delay = 0, duration = 1000 }) {
   const [displayText, setDisplayText] = useState('');
 
   useEffect(() => {
+    document.title = '] ABOUT ME [ Ionut Stan - Front-End Developer';
+
     let frame = 0;
     const totalFrames = 25; 
     let interval;
@@ -36,7 +38,11 @@ function ScrambleText({ text, delay = 0, duration = 1000 }) {
       }, duration / totalFrames);
     }, delay);
 
-    return () => { clearTimeout(timer); if (interval) clearInterval(interval); };
+    return () => { 
+      clearTimeout(timer); if (interval) clearInterval(interval);
+      document.title = 'Ionut Stan - Front-End Developer';
+
+    };
   }, [text, delay, duration]);
 
   return <>{displayText || text.split('').map(() => SCRAMBLE_CHARS[0]).join('')}</>;

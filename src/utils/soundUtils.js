@@ -4,6 +4,7 @@ import windSpaceNebulaAudioFile from '../assets/audio/wind_space_nebula.mp3';
 import materializeAudioFile from '../assets/audio/materialize.mp3';
 import nebulaCoreDangerAudioFile from '../assets/audio/nebula_core_danger.mp3';
 import nebulaExplosionAudioFile from '../assets/audio/nebula_explosion.mp3';
+import coolingDownAudioFile from '../assets/audio/cooling_down.mp3';
 
 let nebulaAudioInstance = null;
 let dangerAudioInstance = null;
@@ -19,21 +20,21 @@ export const setSFXMuted = (isMuted) => {
 export const playClickSound = () => {
   if (sfxMuted) return;
   const clickAudio = new Audio(clickAudioFile);
-  clickAudio.volume = 0.05;
+  clickAudio.volume = 0.03;
   clickAudio.play().catch(err => console.log(err));
 };
 
 export const playCoreTransitionSound = () => {
   if (sfxMuted) return;
   const transitionAudio = new Audio(coreTransitionAudioFile);
-  transitionAudio.volume = 0.2;
+  transitionAudio.volume = 0.15;
   transitionAudio.play().catch(err => console.log(err));
 };
 
 export const playWindNebulaSound = () => {
   if (!nebulaAudioInstance) {
     nebulaAudioInstance = new Audio(windSpaceNebulaAudioFile);
-    nebulaAudioInstance.volume = 0.4;
+    nebulaAudioInstance.volume = 0.3;
     nebulaAudioInstance.loop = true;
   }
   nebulaAudioInstance.muted = sfxMuted;
@@ -82,6 +83,13 @@ export const stopDangerSound = () => {
 export const playExplosionSound = () => {
   if (sfxMuted) return;
   const explosionAudio = new Audio(nebulaExplosionAudioFile);
-  explosionAudio.volume = 0.7;
+  explosionAudio.volume = 0.5;
   explosionAudio.play().catch(err => console.log(err));
+};
+
+export const playCoolingDownSound = () => {
+  if (sfxMuted) return;
+  const coolingDownAudio = new Audio(coolingDownAudioFile);
+  coolingDownAudio.volume = 0.5;
+  coolingDownAudio.play().catch(err => console.log(err));
 };

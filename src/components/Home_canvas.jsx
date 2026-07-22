@@ -16,7 +16,8 @@ import {
   playDangerSound, 
   updateDangerVolume, 
   stopDangerSound,
-  playExplosionSound
+  playExplosionSound,
+  playCoolingDownSound
 } from '../utils/soundUtils';
 
 function HomeCanvas() {
@@ -40,6 +41,7 @@ function HomeCanvas() {
   const materialRef = useRef(null);
   const material1Ref = useRef(null);
   const orbitGroupRef = useRef(null);
+  const coreGroupRef = useRef(null);
   
   const nucleiGroupRef = useRef(null);
   const nucleiDataRef = useRef(null);
@@ -54,19 +56,26 @@ function HomeCanvas() {
   const miniNebulaeRef = useRef([]);
   const clickCountRef = useRef(0);
   const overloadCountRef = useRef(0);
-  const isNervousRef = useRef(false);
+  const nervousIntensityRef = useRef(0);
   const isMorphingRef = useRef(false); 
   const isTransitioningRef = useRef(false);
+
+  const cooldownTimerRef = useRef(null);
 
   const flashRef = useRef(null);
   const shockwaveRef = useRef(null);
   const dustRef = useRef(null);
 
   const openMyWorkRef = useRef(openMyWork);
+  const openAboutmeRef = useRef(openAboutme);
 
   useEffect(() => {
     openMyWorkRef.current = openMyWork;
   }, [openMyWork]);
+
+  useEffect(() => {
+    openAboutmeRef.current = openAboutme;
+  }, [openAboutme]);
 
   useEffect(() => {
     activeEffectRef.current = activeEffect;
@@ -80,19 +89,26 @@ function HomeCanvas() {
       setNebulaHint("");
     }
 
-    if (activeEffect !== 'nebula' && miniGroupRef.current) {
-      miniNebulaeRef.current.forEach(item => {
-        miniGroupRef.current.remove(item.mesh);
-        item.mesh.traverse(child => {
-          if (child.geometry) child.geometry.dispose();
-          if (child.material) child.material.dispose();
+    if (activeEffect !== 'nebula') {
+      if (cooldownTimerRef.current) {
+        clearTimeout(cooldownTimerRef.current);
+        cooldownTimerRef.current = null;
+      }
+
+      if (miniGroupRef.current) {
+        miniNebulaeRef.current.forEach(item => {
+          miniGroupRef.current.remove(item.mesh);
+          item.mesh.traverse(child => {
+            if (child.geometry) child.geometry.dispose();
+            if (child.material) child.material.dispose();
+          });
         });
-      });
-      miniNebulaeRef.current = [];
-      clickCountRef.current = 0;
-      overloadCountRef.current = 0;
-      isNervousRef.current = false;
-      setProgressStep(0);
+        miniNebulaeRef.current = [];
+        clickCountRef.current = 0;
+        overloadCountRef.current = 0;
+        nervousIntensityRef.current = 0;
+        setProgressStep(0);
+      }
     }
   }, [activeEffect]);
 
@@ -171,9 +187,13 @@ function HomeCanvas() {
     for(let i = 0; i < count; i += 3) bary.push(0,0,1, 0,1,0, 1,0,0);
     geometry1.setAttribute('aBary', new THREE.BufferAttribute(new Float32Array(bary), 3));
 
+    const coreGroup = new THREE.Group();
+    scene.add(coreGroup);
+    coreGroupRef.current = coreGroup;
+
     const ico = new THREE.Mesh(geometry1, material);
     const icoLines = new THREE.Mesh(geometry1, material1);
-    scene.add(ico, icoLines);
+    coreGroup.add(ico, icoLines);
     icoRef.current = ico;
     icoLinesRef.current = icoLines;
 
@@ -183,11 +203,11 @@ function HomeCanvas() {
 
     const ringMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true, transparent: true, opacity: 0.15 });
     const ringGeo = new THREE.TorusGeometry(1.5, 0.01, 4, 12);
-     
+      
     const ring1 = new THREE.Mesh(ringGeo, ringMaterial);
     ring1.rotation.y = Math.PI / 2;
     orbitGroup.add(ring1);
-     
+      
     const ring2 = new THREE.Mesh(ringGeo, ringMaterial);
     ring2.rotation.x = Math.PI / 2;
     orbitGroup.add(ring2);
@@ -208,7 +228,7 @@ function HomeCanvas() {
     for (let i = 0; i < nucleiCount; i++) {
       const mesh = new THREE.Mesh(nucleiGeo, nucleiMat);
       nucleiGroup.add(mesh);
-       
+        
       nucleiData.push({
         mesh: mesh,
         angle: (i / nucleiCount) * Math.PI * 2,
@@ -216,7 +236,7 @@ function HomeCanvas() {
         ringType: i % 2 === 0 ? 'vertical' : 'horizontal'
       });
     }
-     
+      
     nucleiDataRef.current = nucleiData;
     nucleiGroup.scale.set(0, 0, 0);
 
@@ -337,11 +357,13 @@ function HomeCanvas() {
       const lerpFactor = activeEffectRef.current === 'nebula' ? 0.01 : 0.05;
       currentMouse += (targetMouse - currentMouse) * lerpFactor;
       targetMouse *= activeEffectRef.current === 'nebula' ? 0.8 : 0.9;
-       
+        
       speedMultiplierRef.current += (targetSpeedRef.current - speedMultiplierRef.current) * 0.02;
       time += 0.002 * speedMultiplierRef.current;
 
-      const rotationSpeedFactor = activeEffectRef.current === 'nebula' ? 0.55 : 0.3;
+      const isAboutme = openAboutmeRef.current;
+      const rotationSpeedFactor = isAboutme ? 1.0 : (activeEffectRef.current === 'nebula' ? 0.55 : 0.3);
+
       scene.rotation.x = time * rotationSpeedFactor;
       scene.rotation.y = time * rotationSpeedFactor;
 
@@ -401,6 +423,24 @@ function HomeCanvas() {
             item.mesh.position.x += (Math.random() - 0.5) * 0.02;
             item.mesh.position.y += (Math.random() - 0.5) * 0.02;
             item.mesh.position.z += (Math.random() - 0.5) * 0.02;
+
+            const pulse = Math.sin(time * 8.0 + idx * 1.5) * 0.5 + 0.5;
+            const erraticPulse = Math.pow(pulse, 3.0);
+
+            const coreMesh = item.mesh.children[1];
+            if (coreMesh) {
+              const scaleVariation = 1.0 + erraticPulse * 0.6;
+              coreMesh.scale.set(scaleVariation, scaleVariation, scaleVariation);
+              if (coreMesh.material) {
+                coreMesh.material.opacity = 0.5 + erraticPulse * 0.5;
+                coreMesh.material.transparent = true;
+              }
+            }
+
+            const wireMesh = item.mesh.children[0];
+            if (wireMesh && wireMesh.material) {
+              wireMesh.material.opacity = 0.4 + erraticPulse * 0.5;
+            }
           }
 
           item.mesh.rotation.x += 0.03 * (idx + 1);
@@ -409,21 +449,15 @@ function HomeCanvas() {
       }
 
       if (ico && icoLines) {
-        if (isNervousRef.current) {
-          const shake = 0.035 * (overloadCountRef.current + 1);
-          ico.position.x = (Math.random() - 0.5) * shake;
-          ico.position.y = (Math.random() - 0.5) * shake;
-          icoLines.position.x = ico.position.x;
-          icoLines.position.y = ico.position.y;
+        if (nervousIntensityRef.current > 0.01) {
+          const shake = 0.035 * (overloadCountRef.current + 1) * nervousIntensityRef.current;
+          ico.position.set((Math.random() - 0.5) * shake, (Math.random() - 0.5) * shake, 0);
+          icoLines.position.copy(ico.position);
         } else if (isMorphingRef.current) {
           const morphShake = 0.03; 
-          ico.position.x = (Math.random() - 0.5) * morphShake;
-          ico.position.y = (Math.random() - 0.5) * morphShake;
-          ico.position.z = (Math.random() - 0.5) * morphShake;
-          icoLines.position.x = ico.position.x;
-          icoLines.position.y = ico.position.y;
-          icoLines.position.z = ico.position.z;
-        } else if (!openAboutme) {
+          ico.position.set((Math.random() - 0.5) * morphShake, (Math.random() - 0.5) * morphShake, (Math.random() - 0.5) * morphShake);
+          icoLines.position.copy(ico.position);
+        } else {
           ico.position.set(0, 0, 0);
           icoLines.position.set(0, 0, 0);
         }
@@ -447,7 +481,7 @@ function HomeCanvas() {
       if (activeEffectRef.current === 'nebula') {
         const flare = Math.max(0, Math.sin(time * 5.0) * Math.cos(time * 2.5));
         const subtleSpikes = Math.pow(flare, 2.5) * 0.65;
-        const nervousMultiplier = isNervousRef.current ? 3.0 + Math.sin(time * 20.0) * 2.0 : 1.0;
+        const nervousMultiplier = 1.0 + nervousIntensityRef.current * (2.0 + Math.sin(time * 20.0) * 2.0);
         burnSpikes = (0.08 + subtleSpikes) * nervousMultiplier;
       }
 
@@ -457,7 +491,7 @@ function HomeCanvas() {
       material.uniforms.mouse.value = finalMouseValue;
       material1.uniforms.time.value = time;
       material1.uniforms.mouse.value = finalMouseValue;
-       
+        
       if (customPass.uniforms["time"]) {
         customPass.uniforms["time"].value = time;
       }
@@ -477,6 +511,79 @@ function HomeCanvas() {
       }
       targetMouse = Math.min(speed, activeEffectRef.current === 'nebula' ? 0.1 : 5);
       lastX = e.pageX; lastY = e.pageY;
+    };
+
+    const handleTouchMove = (e) => {
+      if (e.touches && e.touches[0]) {
+        const touch = e.touches[0];
+        targetMouseNormRef.current.x = (touch.clientX / window.innerWidth) * 2 - 1;
+        targetMouseNormRef.current.y = -(touch.clientY / window.innerHeight) * 2 + 1;
+
+        let speed = Math.sqrt((touch.pageX - lastX) ** 2 + (touch.pageY - lastY) ** 2) * 0.1;
+        if (activeEffectRef.current === 'nebula') {
+          speed *= 0.02;
+        }
+        targetMouse = Math.min(speed, activeEffectRef.current === 'nebula' ? 0.1 : 5);
+        lastX = touch.pageX; lastY = touch.pageY;
+      }
+    };
+
+    const handleTouchStart = (e) => {
+      if (e.touches && e.touches[0]) {
+        lastX = e.touches[0].pageX;
+        lastY = e.touches[0].pageY;
+      }
+    };
+
+    const resetInstability = () => {
+      if (cooldownTimerRef.current) {
+        clearTimeout(cooldownTimerRef.current);
+        cooldownTimerRef.current = null;
+      }
+
+      stopDangerSound();
+      playCoolingDownSound();
+
+      if (materialRef.current) {
+        new TWEEN.Tween(materialRef.current.uniforms.mouse)
+          .to({ value: 0.08 }, 1500)
+          .easing(TWEEN.Easing.Cubic.Out)
+          .start();
+      }
+
+      const intensityObj = { val: nervousIntensityRef.current };
+      new TWEEN.Tween(intensityObj)
+        .to({ val: 0 }, 1500)
+        .easing(TWEEN.Easing.Cubic.Out)
+        .onUpdate(() => {
+          nervousIntensityRef.current = intensityObj.val;
+        })
+        .onComplete(() => {
+          overloadCountRef.current = 0;
+        })
+        .start();
+
+      miniNebulaeRef.current.forEach((item) => {
+        new TWEEN.Tween(item.mesh.scale)
+          .to({ x: 1, y: 1, z: 1 }, 1500)
+          .easing(TWEEN.Easing.Cubic.Out)
+          .start();
+      });
+
+      const currentStep = 4 + overloadCountRef.current;
+      const progressObj = { step: currentStep };
+      
+      new TWEEN.Tween(progressObj)
+        .to({ step: 4 }, 1500)
+        .easing(TWEEN.Easing.Linear.None)
+        .onUpdate(() => {
+          setProgressStep(Math.round(progressObj.step));
+        })
+        .start();
+
+      const isMobile = window.innerWidth <= 767.98;
+      const actionWord = isMobile ? "Tap" : "Click";
+      setNebulaHint(`Core cooled down. ${actionWord} to overload core`);
     };
 
     const handleClick = (e) => {
@@ -567,13 +674,21 @@ function HomeCanvas() {
           .start();
 
       } else {
+        if (cooldownTimerRef.current) {
+          clearTimeout(cooldownTimerRef.current);
+          cooldownTimerRef.current = null;
+        }
+
         overloadCountRef.current += 1;
         setProgressStep(4 + overloadCountRef.current);
-        isNervousRef.current = true;
+        nervousIntensityRef.current = 1.0;
 
         if (overloadCountRef.current === 1) {
           playDangerSound(0.3);
           setNebulaHint(`WARNING: Core instability rising (${overloadCountRef.current}/3)`);
+          
+          cooldownTimerRef.current = window.setTimeout(resetInstability, 10000);
+
           new TWEEN.Tween(material.uniforms.mouse)
             .to({ value: 2.5 }, 300)
             .start();
@@ -590,6 +705,9 @@ function HomeCanvas() {
         } else if (overloadCountRef.current === 2) {
           updateDangerVolume(0.6);
           setNebulaHint(`WARNING: Core instability rising (${overloadCountRef.current}/3)`);
+          
+          cooldownTimerRef.current = window.setTimeout(resetInstability, 10000);
+
           new TWEEN.Tween(material.uniforms.mouse)
             .to({ value: 4.5 }, 300)
             .start();
@@ -607,7 +725,7 @@ function HomeCanvas() {
           stopDangerSound();
           playExplosionSound();
           setNebulaHint("CRITICAL OVERLOAD — DISCHARGING");
-          isNervousRef.current = false;
+          nervousIntensityRef.current = 0;
 
           targetSpeedRef.current = 0.02;
 
@@ -764,7 +882,8 @@ function HomeCanvas() {
 
           setTimeout(() => {
             if (activeEffectRef.current === 'nebula') {
-              targetSpeedRef.current = 0.15;
+              const isMob = window.innerWidth <= 767.98;
+              targetSpeedRef.current = isMob ? 0.35 : 0.15;
             }
           }, 2000);
 
@@ -788,12 +907,21 @@ function HomeCanvas() {
     };
 
     window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('touchmove', handleTouchMove, { passive: true });
+    window.addEventListener('touchstart', handleTouchStart, { passive: true });
     window.addEventListener('click', handleClick);
     window.addEventListener('resize', handleResize);
 
     return () => {
       cancelAnimationFrame(animationFrameId);
+      
+      if (cooldownTimerRef.current) {
+        clearTimeout(cooldownTimerRef.current);
+      }
+      
       window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('touchstart', handleTouchStart);
       window.removeEventListener('click', handleClick);
       window.removeEventListener('resize', handleResize);
       if (containerRef.current && containerRef.current.contains(renderer.domElement)) {
@@ -821,17 +949,21 @@ function HomeCanvas() {
 
   useEffect(() => {
     const container = containerRef.current;
-    const { camera, ico, icoLines, material, material1, orbitGroup } = { 
-        camera: cameraRef.current, ico: icoRef.current, icoLines: icoLinesRef.current, 
-        material: materialRef.current, material1: material1Ref.current, orbitGroup: orbitGroupRef.current
+    const { camera, material, material1, orbitGroup, coreGroup } = { 
+        camera: cameraRef.current, material: materialRef.current, 
+        material1: material1Ref.current, orbitGroup: orbitGroupRef.current, coreGroup: coreGroupRef.current
     };
-     
-    if (!camera || !ico || !orbitGroup || !container) return;
+      
+    if (!camera || !orbitGroup || !coreGroup || !container) return;
 
     requestAnimationFrame(() => { container.style.opacity = '1'; });
     container.style.pointerEvents = openMyWork ? 'none' : 'auto';
 
     if (openAboutme || openMyWork) {
+      if (cooldownTimerRef.current) {
+        clearTimeout(cooldownTimerRef.current);
+        cooldownTimerRef.current = null;
+      }
       stopWindNebulaSound();
       stopDangerSound();
       if (restoreBackgroundAudio) restoreBackgroundAudio();
@@ -839,24 +971,22 @@ function HomeCanvas() {
 
     if (openAboutme) {
       material.wireframe = true; material1.wireframe = true;
-      ico.visible = true; icoLines.visible = true; orbitGroup.visible = false;
-       
-      new TWEEN.Tween(ico.position).to({ x: -1 }, 500).easing(TWEEN.Easing.Quadratic.Out).start();
-      new TWEEN.Tween(icoLines.position).to({ x: -1 }, 500).easing(TWEEN.Easing.Quadratic.Out).start();
-      new TWEEN.Tween(camera.position).to({ z: 1 }, 500).easing(TWEEN.Easing.Quadratic.Out).start();
+      coreGroup.visible = true; orbitGroup.visible = false;
+        
+      new TWEEN.Tween(coreGroup.position).to({ x: -1 }, 1000).easing(TWEEN.Easing.Quadratic.Out).start();
+      new TWEEN.Tween(camera.position).to({ z: 1 }, 1000).easing(TWEEN.Easing.Quadratic.Out).start();
       setActiveEffect('core');
     } else if (openMyWork) {
-      ico.visible = false; icoLines.visible = false; orbitGroup.visible = false; 
+      coreGroup.visible = false; orbitGroup.visible = false; 
       setActiveEffect('core');
     } else if (openFirst) {
       material.wireframe = false; material1.wireframe = false;
-      ico.visible = true; icoLines.visible = true; orbitGroup.visible = true;
+      coreGroup.visible = true; orbitGroup.visible = true;
 
-      new TWEEN.Tween(ico.position).to({ x: 0 }, 500).easing(TWEEN.Easing.Quadratic.Out).start();
-      new TWEEN.Tween(icoLines.position).to({ x: 0 }, 500).easing(TWEEN.Easing.Quadratic.Out).start();
-      new TWEEN.Tween(camera.position).to({ z: 2 }, 500).easing(TWEEN.Easing.Quadratic.Out).start();
+      new TWEEN.Tween(coreGroup.position).to({ x: 0 }, 1000).easing(TWEEN.Easing.Quadratic.Out).start();
+      new TWEEN.Tween(camera.position).to({ z: 2 }, 1000).easing(TWEEN.Easing.Quadratic.Out).start();
     }
-     
+      
     material.needsUpdate = true; material1.needsUpdate = true;
   }, [openAboutme, openMyWork, openFirst, restoreBackgroundAudio]);
 
@@ -864,7 +994,7 @@ function HomeCanvas() {
     const { ico, icoLines, orbitGroup, nucleiGroup } = { 
       ico: icoRef.current, icoLines: icoLinesRef.current, orbitGroup: orbitGroupRef.current, nucleiGroup: nucleiGroupRef.current 
     };
-     
+      
     if (!ico || !icoLines || !orbitGroup || !nucleiGroup) return;
 
     const duration = 1200;
@@ -886,7 +1016,7 @@ function HomeCanvas() {
       new TWEEN.Tween(nucleiGroup.scale).to({ x: 1 * m, y: 1 * m, z: 1 * m }, duration).easing(TWEEN.Easing.Cubic.Out).start();
     
     } else if (activeEffect === 'nebula') {
-      targetSpeedRef.current = 0.15;
+      targetSpeedRef.current = isMobile ? 0.35 : 0.15;
       new TWEEN.Tween(ico.scale).to({ x: 1.25 * m, y: 1.25 * m, z: 1.25 * m }, duration).easing(TWEEN.Easing.Cubic.Out).start();
       new TWEEN.Tween(icoLines.scale).to({ x: 1.35 * m, y: 1.35 * m, z: 1.35 * m }, duration).easing(TWEEN.Easing.Cubic.Out).start();
       new TWEEN.Tween(orbitGroup.scale).to({ x: 0.5 * m, y: 0.5 * m, z: 0.5 * m }, duration).easing(TWEEN.Easing.Cubic.Out).start();
@@ -937,6 +1067,7 @@ function HomeCanvas() {
       <div 
         ref={containerRef} 
         className='home_container_cont'
+        style={{ transition: 'opacity 0.5s ease-in-out' }}
       ></div>
 
       <div className={`canvas_effects_controls ${openFirst ? 'visible' : 'hidden'}`}>
