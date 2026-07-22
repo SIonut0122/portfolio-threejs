@@ -19,6 +19,7 @@ function Home() {
   const audioRef = useRef(null);
   const wasPlayingBeforeHideRef = useRef(false);
   const sfxStateBeforeHideRef = useRef(false);
+  const wasPlayingBeforeAutoMuteRef = useRef(false);
 
   const isMutedRef = useRef(isMuted);
   isMutedRef.current = isMuted;
@@ -46,7 +47,7 @@ function Home() {
           setSFXMuted(true);
         }
       } else {
-        if (wasPlayingBeforeHideRef.current && audioRef.current) {
+        if (wasPlayingBeforeHideRef.current && audioRef.current && !isMutedRef.current) {
           audioRef.current.play().catch(err => console.log(err));
           wasPlayingBeforeHideRef.current = false;
         }
@@ -90,16 +91,21 @@ function Home() {
   };
 
   const muteBackgroundAudio = () => {
-    if (audioRef.current && !isMuted) {
-      audioRef.current.pause();
-      setIsMuted(true);
+    if (audioRef.current) {
+      wasPlayingBeforeAutoMuteRef.current = !isMutedRef.current;
+      if (!isMutedRef.current) {
+        audioRef.current.pause();
+      }
     }
   };
 
   const restoreBackgroundAudio = () => {
     if (audioRef.current) {
-      audioRef.current.play().catch(err => console.log(err));
-      setIsMuted(false);
+      // Restaurează muzica doar dacă era pornită înainte de auto-mute ȘI utilizatorul nu a setat manual audio pe OFF în acest timp
+      if (wasPlayingBeforeAutoMuteRef.current && !isMutedRef.current) {
+        audioRef.current.play().catch(err => console.log(err));
+      }
+      wasPlayingBeforeAutoMuteRef.current = false;
     }
   };
 
