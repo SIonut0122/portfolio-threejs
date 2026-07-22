@@ -852,17 +852,17 @@
 
       .mobile-reveal-panel {
         opacity: 1;
-        transform: translate(-50%, -50%) scale(1);
+        transform: translate(-50%, 0) scale(1);
         pointer-events: auto;
       }
     }
   }
 
   .mobile-reveal-panel {
-    position: fixed !important;
-    top: 50% !important;
-    left: 50% !important;
-    transform: translate(-50%, -50%) scale(1);
+    position: absolute;
+    top: 175px;
+    left: 50%;
+    transform: translate(-50%, 0) scale(1);
     width: 85vw;
     max-width: 320px;
     display: flex;
@@ -871,14 +871,16 @@
     justify-content: center;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.3s ease, transform 0.3s ease;
-    z-index: 1000;
-    gap: 10px;
+    touch-action: pan-y !important;
+    transition: opacity 0.45s cubic-bezier(0.25, 1, 0.5, 1),
+      transform 0.45s cubic-bezier(0.25, 1, 0.5, 1);
+    z-index: 2;
+    gap: 12px;
 
     .mobile-img-wrapper {
       display: block;
       width: 100%;
-      height: 130px;
+      height: 150px;
       overflow: hidden;
       border-radius: 6px;
       box-shadow: 0 15px 35px rgba(0, 0, 0, 0.85),
@@ -895,7 +897,7 @@
 
     .mobile_cursor_info_box {
       width: 100%;
-      padding: 10px 12px;
+      padding: 12px 14px;
       background: $color-glass;
       backdrop-filter: blur(12px);
       border: 1px solid $border-glass;
@@ -970,56 +972,53 @@
 @media (max-height: 500px) and (orientation: landscape) {
   @media (max-width: 767.98px) {
     .scatter_grid_wrapper {
-      padding-top: calc(25vh - 30px);
-      padding-bottom: calc(75vh - 30px);
+      padding-top: calc(28vh - 40px);
+      padding-bottom: calc(72vh - 40px);
     }
 
     .scatter_item {
-      height: 60px;
-      min-height: 60px;
+      height: 75px;
+      min-height: 75px;
 
       a {
-        font-size: 16px;
+        font-size: 18px;
         &::before {
-          font-size: 28px;
+          font-size: 32px;
         }
       }
 
       .mobile-tech-text {
-        font-size: 8px;
-        margin: 2px 0 0 0;
+        font-size: 9px;
+        margin: 4px 0 0 0;
       }
 
       .mobile-year-text {
-        font-size: 7px;
-        margin: 1px 0 0 0;
+        font-size: 8px;
+        margin: 2px 0 0 0;
       }
     }
 
     .mobile-reveal-panel {
-      width: 60vw !important;
-      max-width: 240px !important;
-      max-height: 85vh !important;
-      padding: 8px !important;
-      gap: 5px !important;
-      background: rgba(22, 22, 22, 0.95) !important;
-      backdrop-filter: blur(8px);
+      top: 95px;
+      width: 65vw;
+      max-width: 260px;
+      gap: 6px;
 
       .mobile-img-wrapper {
-        height: 65px !important;
+        height: 75px;
       }
 
       .mobile_cursor_info_box {
-        padding: 6px 8px !important;
+        padding: 6px 10px;
 
         .info-label {
-          font-size: 7px !important;
-          margin-bottom: 1px !important;
+          font-size: 8px;
+          margin-bottom: 2px;
         }
 
         .info-desc {
-          font-size: 9px !important;
-          line-height: 1.2 !important;
+          font-size: 9px;
+          line-height: 1.2;
         }
       }
     }
