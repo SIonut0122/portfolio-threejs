@@ -90,7 +90,7 @@ function Mywork() {
     };
 
     const navigateToItem = (nextIndex) => {
-      if (nextIndex < 0 || nextIndex >= projects.length) return;
+      if (nextIndex < 0 || nextIndex >= projects.length || isScrollingRef.current) return;
       
       setHasScrolled(true);
       isScrollingRef.current = true;
@@ -100,15 +100,30 @@ function Mywork() {
       playClickSound();
 
       scrollContainer.scrollTo({ top: nextIndex * 110, behavior: 'smooth' });
-      setTimeout(() => { isScrollingRef.current = false; triggerDetailsTimeout(); }, 450); 
+      
+      setTimeout(() => { 
+        isScrollingRef.current = false; 
+        triggerDetailsTimeout(); 
+      }, 350); 
     };
 
-    const handleWheel = (e) => { e.preventDefault(); if (!isScrollingRef.current) navigateToItem(mobileActiveIndex + Math.sign(e.deltaY)); };
-    const handleTouchStart = (e) => touchStartYRef.current = e.touches[0].clientY;
+    const handleWheel = (e) => { 
+      e.preventDefault(); 
+      if (!isScrollingRef.current) {
+        navigateToItem(mobileActiveIndex + Math.sign(e.deltaY)); 
+      }
+    };
+
+    const handleTouchStart = (e) => {
+      touchStartYRef.current = e.touches[0].clientY;
+    };
+
     const handleTouchEnd = (e) => {
       if (isScrollingRef.current) return;
       const diffY = touchStartYRef.current - e.changedTouches[0].clientY;
-      if (Math.abs(diffY) > 30) navigateToItem(mobileActiveIndex + Math.sign(diffY));
+      if (Math.abs(diffY) > 25) {
+        navigateToItem(mobileActiveIndex + Math.sign(diffY));
+      }
     };
 
     scrollContainer.addEventListener('wheel', handleWheel, { passive: false });
@@ -124,7 +139,6 @@ function Mywork() {
   }, [mobileActiveIndex, projects.length]);
 
   const currentProject = projects[isMobile ? mobileActiveIndex : activeIndex];
-  // Formatăm lista de tehnologii înlocuind punctele simple cu " // "
   const rawTech = currentProject?.tech || "";
   const formattedTech = rawTech.replaceAll('•', '//');
   const formattedText = currentProject ? `${formattedTech} // ` : "";
