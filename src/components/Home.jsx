@@ -3,6 +3,7 @@ import HomeCanvas from "./Home_canvas";
 import Content from './Content';
 import Header from './Header';
 import ambientAudioFile from '../assets/audio/ambient_bg.mp3';
+import { setSFXMuted } from '../utils/soundUtils';
 
 export const MainContext = React.createContext();
 
@@ -13,13 +14,16 @@ function Home() {
   const [openMyWork, setOpenMyWork] = useState(false);
   const [openFirst, setOpenFirst] = useState(true);
   const [isMuted, setIsMuted] = useState(true);
+  
+  const [isSfxMuted, setIsSfxMuted] = useState(false); 
+  
   const audioRef = useRef(null);
   const wasMusicPlayingRef = useRef(false);
 
   useEffect(() => {
     audioRef.current = new Audio(ambientAudioFile);
     audioRef.current.loop = true;
-    audioRef.current.volume = 0.08;
+    audioRef.current.volume = 0.05;
 
     return () => {
       if (audioRef.current) {
@@ -41,6 +45,12 @@ function Home() {
       setIsMuted(true);
       wasMusicPlayingRef.current = false;
     }
+  };
+
+  const toggleSFX = () => {
+    const newState = !isSfxMuted;
+    setIsSfxMuted(newState);
+    setSFXMuted(newState);
   };
 
   const muteBackgroundAudio = () => {
@@ -75,9 +85,14 @@ function Home() {
         }}>
           <Header /> 
 
-          <button className="audio-control-btn" onClick={toggleAudio} type="button">
-            {isMuted ? '[ AUDIO: OFF ]' : '[ AUDIO: ON ]'}
-          </button>
+          <div className="audio-controls-wrapper">
+            <button className="audio-control-btn" onClick={toggleAudio} type="button">
+              {isMuted ? '[ AUDIO: OFF ]' : '[ AUDIO: ON ]'}
+            </button>
+            <button className="audio-control-btn" onClick={toggleSFX} type="button">
+              {isSfxMuted ? '[ SFX: OFF ]' : '[ SFX: ON ]'}
+            </button>
+          </div>
 
           <button className="d-none" id='whitefireframe' type='button'>White / wireframe</button>
           <button className="d-none" id='blackwhiteframe' type='button'>Black / wireframe</button>

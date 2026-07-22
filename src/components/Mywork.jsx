@@ -1,6 +1,6 @@
-import { useContext, useEffect, useState, useRef } from 'react';
-import { MainContext } from "./Home";
+import { useEffect, useState, useRef } from 'react';
 import { MYWORK_DATA } from '../data/portfolioData';
+import { playClickSound } from '../utils/soundUtils';
 
 function Mywork() {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -13,6 +13,7 @@ function Mywork() {
   const mobileTimeoutRef = useRef(null);
   const cursorRef = useRef(null);
   const infoBoxRef = useRef(null);
+  const hoverTimerRef = useRef(null);
   
   const isScrollingRef = useRef(false);
   const touchStartYRef = useRef(0);
@@ -63,6 +64,7 @@ function Mywork() {
       window.removeEventListener('mousemove', handleMouseMove);
       document.body.style.overflow = '';
       document.documentElement.style.overflow = '';
+      if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
     };
   }, []);
 
@@ -84,6 +86,8 @@ function Mywork() {
       isScrollingRef.current = true;
       setShowMobileDetails(false);
       setMobileActiveIndex(nextIndex);
+
+      playClickSound();
 
       scrollContainer.scrollTo({ top: nextIndex * 110, behavior: 'smooth' });
       setTimeout(() => { isScrollingRef.current = false; triggerDetailsTimeout(); }, 450); 
@@ -141,7 +145,17 @@ function Mywork() {
               key={index} 
               className={`scatter_item ${isFocusedMobile ? 'is-focused' : ''} ${isFocusedMobile && showMobileDetails ? 'show-details' : ''}`}
               data-speed={project.speed} style={{ top: project.top, left: project.left }}
-              onMouseEnter={() => setActiveIndex(index)}
+              onMouseEnter={() => {
+                if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
+                
+                hoverTimerRef.current = setTimeout(() => {
+                  setActiveIndex(index);
+                  playClickSound();
+                }, 70);
+              }}
+              onMouseLeave={() => {
+                if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
+              }}
             >
               <a href={project.url} target="_blank" rel="noreferrer" data-text={project.name} aria-label={`View project ${project.name}`}>
                 <img className="desktop-preview" src={project.img} alt=''/>

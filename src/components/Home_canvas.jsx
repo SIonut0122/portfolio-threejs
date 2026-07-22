@@ -831,6 +831,12 @@ function HomeCanvas() {
     requestAnimationFrame(() => { container.style.opacity = '1'; });
     container.style.pointerEvents = openMyWork ? 'none' : 'auto';
 
+    if (openAboutme || openMyWork) {
+      stopWindNebulaSound();
+      stopDangerSound();
+      if (restoreBackgroundAudio) restoreBackgroundAudio();
+    }
+
     if (openAboutme) {
       material.wireframe = true; material1.wireframe = true;
       ico.visible = true; icoLines.visible = true; orbitGroup.visible = false;
@@ -852,7 +858,7 @@ function HomeCanvas() {
     }
      
     material.needsUpdate = true; material1.needsUpdate = true;
-  }, [openAboutme, openMyWork, openFirst]);
+  }, [openAboutme, openMyWork, openFirst, restoreBackgroundAudio]);
 
   useEffect(() => {
     const { ico, icoLines, orbitGroup, nucleiGroup } = { 
@@ -906,6 +912,7 @@ function HomeCanvas() {
       }
     } else {
       stopWindNebulaSound();
+      stopDangerSound();
       if (restoreBackgroundAudio) {
         restoreBackgroundAudio();
       }
@@ -960,7 +967,6 @@ function HomeCanvas() {
         >
           <div>{nebulaHint}</div>
 
-          {/* Bara de progres pe segmente (gri -> alb intens) */}
           <div className="nebula_progress_bar">
             {[1, 2, 3, 4, 5, 6, 7].map((step) => {
               const isActive = step <= progressStep;
