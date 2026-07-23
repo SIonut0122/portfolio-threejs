@@ -109,7 +109,7 @@
   position: relative;
   width: 100%;
   min-height: 100vh;
-  padding: 170px 0 100px 0; /* Padding mărit în partea de sus pentru distanțare de Header */
+  padding: 170px 0 100px 0;
   opacity: 1;
   box-sizing: border-box;
 }
@@ -387,7 +387,7 @@
       position: absolute;
       top: -1px;
       right: -1px;
-      width: 10px;
+      width: 100%;
       height: 10px;
       border-top: 1px solid rgba(255, 255, 255, 0.6);
       border-right: 1px solid rgba(255, 255, 255, 0.6);
@@ -634,7 +634,7 @@
 
   .scatter_grid_wrapper {
     min-height: 100vh;
-    padding-top: 180px !important; /* Protecție pe Desktop */
+    padding-top: 180px !important;
     padding-bottom: 120px !important;
   }
 
@@ -699,10 +699,10 @@
     -webkit-mask-image: linear-gradient(
       to bottom,
       rgba(0, 0, 0, 0) 0%,
-      rgba(0, 0, 0, 0) 10%,
-      rgba(0, 0, 0, 1) 30%,
-      rgba(0, 0, 0, 1) 70%,
-      rgba(0, 0, 0, 0) 90%,
+      rgba(0, 0, 0, 0) 8%,
+      rgba(0, 0, 0, 1) 22%,
+      rgba(0, 0, 0, 1) 78%,
+      rgba(0, 0, 0, 0) 92%,
       rgba(0, 0, 0, 0) 100%
     );
   }
@@ -716,8 +716,8 @@
     width: 100%;
     height: 100%;
     padding: 0 20px;
-    padding-top: calc(35vh - 55px) !important;
-    padding-bottom: calc(65vh - 55px) !important;
+    padding-top: calc(50vh - 55px) !important;
+    padding-bottom: calc(50vh - 55px) !important;
     gap: 0px;
     scrollbar-width: none;
     transition: opacity 0.5s cubic-bezier(0.25, 1, 0.5, 1);
@@ -753,7 +753,7 @@
     a {
       opacity: 1 !important;
       color: rgba(255, 255, 255, 0.5);
-      font-size: 24px;
+      font-size: 22px;
       cursor: pointer;
       pointer-events: auto;
       max-width: 100%;
@@ -793,17 +793,18 @@
 
     .mobile-tech-text {
       display: block !important;
-      font-size: 11px;
+      font-size: 10px;
+      line-height: 1.35;
       font-weight: 700;
-      letter-spacing: 1.5px;
+      letter-spacing: 1.2px;
       color: var(--color-accent, #00ffaa);
       text-transform: uppercase;
-      margin: 8px 0 0 0;
+      margin: 6px 0 0 0;
       opacity: 0;
-      max-width: 100%;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+      width: 100%;
+      max-width: 90vw;
+      white-space: normal;
+      word-break: break-word;
       transform: translateY(5px);
       transition: opacity 0.4s cubic-bezier(0.25, 1, 0.5, 1),
         transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
@@ -828,7 +829,7 @@
 
     &.is-focused {
       opacity: 1;
-      transform: scale(1.15) rotateX(0deg);
+      transform: scale(1.1) rotateX(0deg);
       filter: blur(0px) !important;
       z-index: 10;
 
@@ -862,10 +863,11 @@
   }
 
   .mobile-reveal-panel {
-    position: absolute;
-    top: 175px;
-    left: 50%;
-    transform: translate(-50%, 0) scale(1);
+    position: absolute !important;
+    top: 110px !important;
+    left: 50% !important;
+    transform: translate(-50%, 0) scale(0.95);
+    margin-top: 0;
     width: 85vw;
     max-width: 320px;
     display: flex;
@@ -878,12 +880,12 @@
     transition: opacity 0.45s cubic-bezier(0.25, 1, 0.5, 1),
       transform 0.45s cubic-bezier(0.25, 1, 0.5, 1);
     z-index: 2;
-    gap: 12px;
+    gap: 10px;
 
     .mobile-img-wrapper {
       display: block;
       width: 100%;
-      height: 150px;
+      height: 135px;
       overflow: hidden;
       border-radius: 6px;
       box-shadow: 0 15px 35px rgba(0, 0, 0, 0.85),
@@ -900,7 +902,7 @@
 
     .mobile_cursor_info_box {
       width: 100%;
-      padding: 12px 14px;
+      padding: 10px 12px;
       background: $color-glass;
       backdrop-filter: blur(12px);
       border: 1px solid $border-glass;
@@ -975,53 +977,53 @@
 @media (max-height: 500px) and (orientation: landscape) {
   @media (max-width: 767.98px) {
     .scatter_grid_wrapper {
-      padding-top: calc(28vh - 40px) !important;
-      padding-bottom: calc(72vh - 40px) !important;
+      padding-top: calc(50vh - 40px) !important;
+      padding-bottom: calc(50vh - 40px) !important;
     }
 
     .scatter_item {
-      height: 75px;
-      min-height: 75px;
+      height: auto;
+      min-height: 55px;
 
       a {
-        font-size: 18px;
+        font-size: 13px;
         &::before {
-          font-size: 32px;
+          font-size: 20px;
         }
       }
 
       .mobile-tech-text {
-        font-size: 9px;
-        margin: 4px 0 0 0;
+        font-size: 8px;
+        margin: 2px 0 0 0;
       }
 
       .mobile-year-text {
-        font-size: 8px;
-        margin: 2px 0 0 0;
+        font-size: 7px;
+        margin: 1px 0 0 0;
       }
     }
 
     .mobile-reveal-panel {
-      top: 95px;
-      width: 65vw;
-      max-width: 260px;
-      gap: 6px;
+      top: 65px !important;
+      width: 50vw;
+      max-width: 220px;
+      gap: 4px;
 
       .mobile-img-wrapper {
-        height: 75px;
+        height: 55px;
       }
 
       .mobile_cursor_info_box {
-        padding: 6px 10px;
+        padding: 4px 8px;
 
         .info-label {
-          font-size: 8px;
+          font-size: 7px;
           margin-bottom: 2px;
         }
 
         .info-desc {
-          font-size: 9px;
-          line-height: 1.2;
+          font-size: 8px;
+          line-height: 1.1;
         }
       }
     }

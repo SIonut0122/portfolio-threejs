@@ -40,6 +40,10 @@ const NebulaCursor = ({ isActive }) => {
     };
 
     const handleMouseDown = (e) => {
+      if (e.target.closest('button') || e.target.closest('a')) {
+        return;
+      }
+
       const clientX = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
       const clientY = e.clientY || (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
 

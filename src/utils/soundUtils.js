@@ -6,97 +6,148 @@ import nebulaCoreDangerAudioFile from '../assets/audio/nebula_core_danger.mp3';
 import nebulaExplosionAudioFile from '../assets/audio/nebula_explosion.mp3';
 import coolingDownAudioFile from '../assets/audio/cooling_down.mp3';
 
-let clickAudioInstance = null;
-let nebulaAudioInstance = null;
-let dangerAudioInstance = null;
+let audioCtx = null;
+let masterGain = null;
+const audioBuffers = {};
+const loopingSources = {};
 
 let sfxMuted = false;
+let lastClickTime = 0;
+
+const getAudioContext = () => {
+  if (!audioCtx) {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (AudioContextClass) {
+      audioCtx = new AudioContextClass();
+      masterGain = audioCtx.createGain();
+      masterGain.connect(audioCtx.destination);
+    }
+  }
+  if (audioCtx && audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
+  return audioCtx;
+};
+
+const loadBuffer = async (url) => {
+  if (audioBuffers[url]) return audioBuffers[url];
+  try {
+    const response = await fetch(url);
+    const arrayBuffer = await response.arrayBuffer();
+    const ctx = getAudioContext();
+    if (!ctx) return null;
+    const decoded = await ctx.decodeAudioData(arrayBuffer);
+    audioBuffers[url] = decoded;
+    return decoded;
+  } catch (e) {
+    return null;
+  }
+};
+
+const playBufferSound = async (url, volume = 1, loop = false, key = null) => {
+  const ctx = getAudioContext();
+  if (!ctx) return null;
+
+  const buffer = await loadBuffer(url);
+  if (!buffer) return null;
+
+  if (key && loopingSources[key]) {
+    try {
+      loopingSources[key].source.stop();
+    } catch (e) {}
+    delete loopingSources[key];
+  }
+
+  const source = ctx.createBufferSource();
+  source.buffer = buffer;
+  source.loop = loop;
+
+  const gainNode = ctx.createGain();
+  gainNode.gain.value = volume;
+
+  source.connect(gainNode);
+  gainNode.connect(masterGain);
+
+  source.start(0);
+
+  if (key) {
+    loopingSources[key] = { source, gainNode, volume };
+  }
+
+  return { source, gainNode };
+};
 
 export const setSFXMuted = (isMuted) => {
   sfxMuted = isMuted;
-  if (nebulaAudioInstance) nebulaAudioInstance.muted = isMuted;
-  if (dangerAudioInstance) dangerAudioInstance.muted = isMuted;
+  if (loopingSources['nebula']) {
+    loopingSources['nebula'].gainNode.gain.value = isMuted ? 0 : loopingSources['nebula'].volume;
+  }
+  if (loopingSources['danger']) {
+    loopingSources['danger'].gainNode.gain.value = isMuted ? 0 : loopingSources['danger'].volume;
+  }
 };
 
 export const playClickSound = (forcePlay = false) => {
   if (sfxMuted && !forcePlay) return;
-
-  if (!clickAudioInstance) {
-    clickAudioInstance = new Audio(clickAudioFile);
-    clickAudioInstance.volume = 0.03;
-  }
-
-  const soundClone = clickAudioInstance.cloneNode();
-  soundClone.volume = 0.03;
-  soundClone.play().catch(err => console.log(err));
+  const now = Date.now();
+  if (now - lastClickTime < 60) return;
+  lastClickTime = now;
+  playBufferSound(clickAudioFile, 0.03);
 };
 
 export const playCoreTransitionSound = () => {
   if (sfxMuted) return;
-  const transitionAudio = new Audio(coreTransitionAudioFile);
-  transitionAudio.volume = 0.15;
-  transitionAudio.play().catch(err => console.log(err));
+  playBufferSound(coreTransitionAudioFile, 0.15);
 };
 
 export const playWindNebulaSound = () => {
-  if (!nebulaAudioInstance) {
-    nebulaAudioInstance = new Audio(windSpaceNebulaAudioFile);
-    nebulaAudioInstance.volume = 0.3;
-    nebulaAudioInstance.loop = true;
-  }
-  nebulaAudioInstance.muted = sfxMuted;
-  nebulaAudioInstance.currentTime = 0;
-  nebulaAudioInstance.play().catch(err => console.log(err));
+  const vol = sfxMuted ? 0 : 0.3;
+  playBufferSound(windSpaceNebulaAudioFile, vol, true, 'nebula');
 };
 
 export const stopWindNebulaSound = () => {
-  if (nebulaAudioInstance) {
-    nebulaAudioInstance.pause();
-    nebulaAudioInstance.currentTime = 0;
+  if (loopingSources['nebula']) {
+    try {
+      loopingSources['nebula'].source.stop();
+    } catch (e) {}
+    delete loopingSources['nebula'];
   }
 };
 
 export const playMaterializeSound = () => {
   if (sfxMuted) return;
-  const materializeAudio = new Audio(materializeAudioFile);
-  materializeAudio.volume = 0.05;
-  materializeAudio.play().catch(err => console.log(err));
+  playBufferSound(materializeAudioFile, 0.05);
 };
 
 export const playDangerSound = (volume = 0.3) => {
-  if (!dangerAudioInstance) {
-    dangerAudioInstance = new Audio(nebulaCoreDangerAudioFile);
-    dangerAudioInstance.loop = true;
-  }
-  dangerAudioInstance.volume = volume;
-  dangerAudioInstance.muted = sfxMuted;
-  dangerAudioInstance.currentTime = 0;
-  dangerAudioInstance.play().catch(err => console.log(err));
+  const vol = sfxMuted ? 0 : volume;
+  playBufferSound(nebulaCoreDangerAudioFile, vol, true, 'danger');
 };
 
 export const updateDangerVolume = (volume) => {
-  if (dangerAudioInstance) {
-    dangerAudioInstance.volume = volume;
+  if (loopingSources['danger']) {
+    loopingSources['danger'].volume = volume;
+    if (!sfxMuted) {
+      loopingSources['danger'].gainNode.gain.value = volume;
+    }
   }
 };
 
 export const stopDangerSound = () => {
-  if (dangerAudioInstance) {
-    dangerAudioInstance.pause();
-    dangerAudioInstance.currentTime = 0;
+  if (loopingSources['danger']) {
+    try {
+      loopingSources['danger'].source.stop();
+    } catch (e) {}
+    delete loopingSources['danger'];
   }
 };
 
 export const playExplosionSound = () => {
   if (sfxMuted) return;
-  const explosionAudio = new Audio(nebulaExplosionAudioFile);
-  explosionAudio.volume = 0.5;
-  explosionAudio.play().catch(err => console.log(err));
+  playBufferSound(nebulaExplosionAudioFile, 0.5);
 };
 
 export const playCoolingDownSound = () => {
   if (sfxMuted) return;
-  const coolingDownAudio = new Audio(coolingDownAudioFile);
-  coolingDownAudio.volume = 0.5;
-  coolingDownAudio.play().catch(err => console.log(err));
+  playBufferSound(coolingDownAudioFile, 0.5);
 };

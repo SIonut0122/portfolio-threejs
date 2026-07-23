@@ -15,8 +15,10 @@ function Home() {
   const [openFirst, setOpenFirst] = useState(true);
   const [isMuted, setIsMuted] = useState(true);
   const [isSfxMuted, setIsSfxMuted] = useState(false); 
+  const [isMobileAudioOpen, setIsMobileAudioOpen] = useState(false);
   
   const audioRef = useRef(null);
+  const audioWrapperRef = useRef(null);
   const wasPlayingBeforeHideRef = useRef(false);
   const sfxStateBeforeHideRef = useRef(false);
   const wasPlayingBeforeAutoMuteRef = useRef(false);
@@ -26,6 +28,22 @@ function Home() {
 
   const isSfxMutedRef = useRef(isSfxMuted);
   isSfxMutedRef.current = isSfxMuted;
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (audioWrapperRef.current && !audioWrapperRef.current.contains(event.target)) {
+        setIsMobileAudioOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("touchstart", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+    };
+  }, []);
 
   useEffect(() => {
     audioRef.current = new Audio(ambientAudioFile);
@@ -90,6 +108,11 @@ function Home() {
     setSFXMuted(newState);
   };
 
+  const toggleMobileAudioMenu = () => {
+    playClickSound(true);
+    setIsMobileAudioOpen(!isMobileAudioOpen);
+  };
+
   const muteBackgroundAudio = () => {
     if (audioRef.current) {
       wasPlayingBeforeAutoMuteRef.current = !isMutedRef.current;
@@ -122,16 +145,27 @@ function Home() {
         }}>
           <Header /> 
 
-          <div className="audio-controls-wrapper">
-            <button className={`audio-control-btn ${!isMuted ? 'active' : ''}`} onClick={toggleAudio} type="button">
-              <span className="status-indicator"></span>
-              <span className="btn-text">{isMuted ? 'AUDIO: OFF' : 'AUDIO: ON'}</span>
+          <div ref={audioWrapperRef} className={`audio-controls-wrapper ${isMobileAudioOpen ? 'mobile-expanded' : ''}`}>
+            <button className="mobile-audio-trigger" onClick={toggleMobileAudioMenu} aria-label="Toggle Audio HUD">
+              <span className={`hud-dot ${(!isMuted || !isSfxMuted) ? 'active' : ''}`}></span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                {!isMuted && <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>}
+              </svg>
             </button>
-            <button className={`audio-control-btn ${!isSfxMuted ? 'active' : ''}`} onClick={toggleSFX} type="button">
-              <span className="status-indicator"></span>
-              <span className="btn-text">{isSfxMuted ? 'SFX: OFF' : 'SFX: ON'}</span>
-            </button>
+            
+            <div className="audio-buttons-container">
+              <button className={`audio-control-btn ${!isMuted ? 'active' : ''}`} onClick={toggleAudio} type="button">
+                <span className="status-indicator"></span>
+                <span className="btn-text">{isMuted ? 'AUDIO: OFF' : 'AUDIO: ON'}</span>
+              </button>
+              <button className={`audio-control-btn ${!isSfxMuted ? 'active' : ''}`} onClick={toggleSFX} type="button">
+                <span className="status-indicator"></span>
+                <span className="btn-text">{isSfxMuted ? 'SFX: OFF' : 'SFX: ON'}</span>
+              </button>
+            </div>
           </div>
+          
           <HomeCanvas />
           <Content />
             
