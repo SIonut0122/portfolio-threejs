@@ -983,6 +983,24 @@
   }
 }
 
+@keyframes arrowBounceUp {
+  0%, 100% {
+    transform: translateY(0) rotate(-135deg);
+  }
+  50% {
+    transform: translateY(-5px) rotate(-135deg);
+  }
+}
+
+@keyframes arrowBounceDown {
+  0%, 100% {
+    transform: translateY(0) rotate(45deg);
+  }
+  50% {
+    transform: translateY(5px) rotate(45deg);
+  }
+}
+
 @media (max-height: 500px) and (orientation: landscape) {
   @media (max-width: 767.98px) {
     .scatter_grid_wrapper {
