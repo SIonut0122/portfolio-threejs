@@ -32,6 +32,15 @@ function Header() {
         return () => clearTimeout(timer);
     }, [openFirst, openAboutme, openMyWork]);
 
+    const closeMobileMenu = () => {
+        const hamburger = document.querySelector('.hamburger');
+        if (hamburger?.classList.contains('isactive')) {
+            hamburger.classList.remove('isactive');
+            document.querySelector('.mobile-menu-cont')?.classList.remove('mobilemenu-active');
+            document.body.classList.remove('fixed-body');
+        }
+    };
+
     const toggleMenu = () => {
         if (!isNavReady) return;
         playClickSound();
@@ -41,15 +50,11 @@ function Header() {
     };
 
     const handleTransition = (nextAction) => {
+        if (!isNavReady) return;
         playClickSound();
         setIsNavReady(false);
 
-        const hamburger = document.querySelector('.hamburger');
-        if (hamburger?.classList.contains('isactive')) {
-            hamburger.classList.remove('isactive');
-            document.querySelector('.mobile-menu-cont')?.classList.remove('mobilemenu-active');
-            document.body.classList.remove('fixed-body');
-        }
+        closeMobileMenu();
 
         document.querySelectorAll('.mywork_container, .aboutme_container, .first_container, .home_container_cont')
             .forEach(container => {
@@ -60,13 +65,49 @@ function Header() {
         setTimeout(() => nextAction(), 1500);
     };
 
-    const goToHome = () => handleTransition(() => { setOpenFirst(true); setOpenAboutme(false); setOpenMyWork(false); });
-    const goToMyWork = () => handleTransition(() => { setOpenFirst(false); setOpenAboutme(false); setOpenMyWork(true); });
-    const goToAboutMe = () => handleTransition(() => { setOpenFirst(false); setOpenAboutme(true); setOpenMyWork(false); });
+    const goToHome = () => {
+        if (openFirst) {
+            closeMobileMenu();
+            playClickSound();
+            return;
+        }
+        handleTransition(() => { 
+            setOpenFirst(true); 
+            setOpenAboutme(false); 
+            setOpenMyWork(false); 
+        });
+    };
+
+    const goToMyWork = () => {
+        if (openMyWork) {
+            closeMobileMenu();
+            playClickSound();
+            return;
+        }
+        handleTransition(() => { 
+            setOpenFirst(false); 
+            setOpenAboutme(false); 
+            setOpenMyWork(true); 
+        });
+    };
+
+    const goToAboutMe = () => {
+        if (openAboutme) {
+            closeMobileMenu();
+            playClickSound();
+            return;
+        }
+        handleTransition(() => { 
+            setOpenFirst(false); 
+            setOpenAboutme(true); 
+            setOpenMyWork(false); 
+        });
+    };
 
     return (
         <header className={isScrolled ? 'header-scrolled' : ''}>
-            <div className='header-logo'>
+            {/* Click pe logo trimite catre Home */}
+            <div className='header-logo' onClick={goToHome} style={{ cursor: 'pointer' }}>
                 <img src={isLogo} alt='Logo' />
             </div>
             

@@ -517,12 +517,8 @@
 }
 
 @keyframes spinScanning {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 @keyframes scanPulseRing {
@@ -544,21 +540,13 @@
 }
 
 @keyframes marqueeRight {
-  0% {
-    transform: translateX(-50%);
-  }
-  100% {
-    transform: translateX(0%);
-  }
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0%); }
 }
 
 @keyframes spinRingOnly {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 @keyframes auraPulse {
@@ -604,9 +592,7 @@
 
 @keyframes swipeFade {
   0%,
-  70% {
-    opacity: 1;
-  }
+  70% { opacity: 1; }
   100% {
     opacity: 0;
     display: none;
@@ -614,9 +600,7 @@
 }
 
 @keyframes swipeMove {
-  0% {
-    transform: translateY(0);
-  }
+  0% { transform: translateY(0); }
   100% {
     transform: translateY(15px);
     opacity: 0;
@@ -734,7 +718,6 @@
     position: relative !important;
     top: auto !important;
     left: auto !important;
-    transform: none !important;
     width: 100%;
     text-align: center;
     height: 110px;
@@ -743,12 +726,12 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    transform: scale(0.8) rotateX(35deg);
+    transform: scale(0.8) rotateX(35deg) translateY(0);
     opacity: 0.4;
     transform-style: preserve-3d;
     touch-action: pan-y !important;
-    transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1),
-      opacity 0.5s cubic-bezier(0.25, 1, 0.5, 1), filter 0.5s ease;
+    transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1),
+      opacity 0.6s cubic-bezier(0.25, 1, 0.5, 1), filter 0.5s ease;
 
     a {
       opacity: 1 !important;
@@ -780,7 +763,11 @@
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%) scale(0.7);
-        font-size: 42px;
+        font-size: clamp(20px, 7.5vw, 32px);
+        max-width: 88vw;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
         color: transparent;
         -webkit-text-stroke: 1px rgba(255, 255, 255, 0);
         opacity: 0;
@@ -829,7 +816,7 @@
 
     &.is-focused {
       opacity: 1;
-      transform: scale(1.1) rotateX(0deg);
+      transform: scale(1.1) rotateX(0deg) translateY(0);
       filter: blur(0px) !important;
       z-index: 10;
 
@@ -839,25 +826,40 @@
 
         &::before {
           opacity: 0.15;
-          transform: translate(-50%, -50%) scale(1.15);
+          transform: translate(-50%, -50%) scale(1.05);
           -webkit-text-stroke: 1px rgba(255, 255, 255, 0.35);
         }
       }
-    }
 
-    &.show-details {
-      overflow: visible;
+      &.show-details {
+        overflow: visible;
+        transform: scale(1.1) rotateX(0deg) translateY(-85px);
 
-      .mobile-tech-text,
-      .mobile-year-text {
-        opacity: 1;
-        transform: translateY(0);
-      }
+        .mobile-tech-text,
+        .mobile-year-text {
+          opacity: 1;
+          transform: translateY(0);
+        }
 
-      .mobile-reveal-panel {
-        opacity: 1;
-        transform: translate(-50%, 0) scale(1);
-        pointer-events: auto;
+        .mobile-reveal-panel {
+          opacity: 1;
+          transform: translate(-50%, 0) scale(1);
+          pointer-events: auto;
+
+          .mobile-img-wrapper {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 0.5s cubic-bezier(0.25, 1, 0.5, 1) 0.15s,
+                        transform 0.5s cubic-bezier(0.25, 1, 0.5, 1) 0.15s;
+          }
+
+          .mobile_cursor_info_box {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 0.5s cubic-bezier(0.25, 1, 0.5, 1) 0.25s,
+                        transform 0.5s cubic-bezier(0.25, 1, 0.5, 1) 0.25s;
+          }
+        }
       }
     }
   }
@@ -877,8 +879,7 @@
     opacity: 0;
     pointer-events: none;
     touch-action: pan-y !important;
-    transition: opacity 0.45s cubic-bezier(0.25, 1, 0.5, 1),
-      transform 0.45s cubic-bezier(0.25, 1, 0.5, 1);
+    transition: opacity 0.3s ease, transform 0.3s ease;
     z-index: 2;
     gap: 10px;
 
@@ -892,6 +893,10 @@
         0 0 0 1px rgba(255, 255, 255, 0.08);
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
+      
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.2s ease, transform 0.2s ease;
 
       img {
         width: 100%;
@@ -910,6 +915,10 @@
       box-shadow: 0 15px 35px rgba(0, 0, 0, 0.8);
       text-align: left;
       border-radius: 4px;
+
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.2s ease, transform 0.2s ease;
 
       .info-label {
         font-size: 9px;
@@ -955,7 +964,7 @@
     }
 
     &.arrow-top {
-      top: 10%;
+      top: 7%;
 
       span {
         transform: rotate(-135deg);
@@ -985,10 +994,14 @@
       height: auto;
       min-height: 55px;
 
+      &.is-focused.show-details {
+        transform: scale(1.1) rotateX(0deg) translateY(-40px);
+      }
+
       a {
         font-size: 13px;
         &::before {
-          font-size: 20px;
+          font-size: clamp(14px, 5vw, 20px);
         }
       }
 

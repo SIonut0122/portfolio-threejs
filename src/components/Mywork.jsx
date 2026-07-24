@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { MYWORK_DATA } from '../data/portfolioData';
-import { playClickSound } from '../utils/soundUtils';
+import { playClickSound, playProjectTransitionSound, playProjectSelectedSound } from '../utils/soundUtils';
 
 function Mywork() {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -86,8 +86,13 @@ function Mywork() {
 
     const triggerDetailsTimeout = () => {
       if (mobileTimeoutRef.current) clearTimeout(mobileTimeoutRef.current);
-      mobileTimeoutRef.current = setTimeout(() => setShowMobileDetails(true), 500); 
+      mobileTimeoutRef.current = setTimeout(() => {
+        setShowMobileDetails(true);
+        playProjectTransitionSound();
+      }, 500); 
     };
+
+    triggerDetailsTimeout();
 
     const navigateToItem = (nextIndex) => {
       if (nextIndex < 0 || nextIndex >= projects.length || isScrollingRef.current) return;
@@ -97,7 +102,7 @@ function Mywork() {
       setShowMobileDetails(false);
       setMobileActiveIndex(nextIndex);
 
-      playClickSound();
+      playProjectSelectedSound();
 
       scrollContainer.scrollTo({ top: nextIndex * 110, behavior: 'smooth' });
       

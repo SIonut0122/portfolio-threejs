@@ -5,6 +5,8 @@ import materializeAudioFile from '../assets/audio/materialize.mp3';
 import nebulaCoreDangerAudioFile from '../assets/audio/nebula_core_danger.mp3';
 import nebulaExplosionAudioFile from '../assets/audio/nebula_explosion.mp3';
 import coolingDownAudioFile from '../assets/audio/cooling_down.mp3';
+import projectTransitionAudioFile from '../assets/audio/project_transition.mp3';
+import projectSelectedAudioFile from '../assets/audio/project_selected.mp3';
 
 let audioCtx = null;
 let masterGain = null;
@@ -93,6 +95,16 @@ export const playClickSound = (forcePlay = false) => {
   if (now - lastClickTime < 60) return;
   lastClickTime = now;
   playBufferSound(clickAudioFile, 0.03);
+};
+
+export const playProjectSelectedSound = (volume = 0.12) => {
+  if (sfxMuted) return;
+  playBufferSound(projectSelectedAudioFile, volume);
+};
+
+export const playProjectTransitionSound = (volume = 0.15) => {
+  if (sfxMuted) return;
+  playBufferSound(projectTransitionAudioFile, volume);
 };
 
 export const playCoreTransitionSound = () => {

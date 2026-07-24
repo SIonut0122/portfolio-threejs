@@ -72,7 +72,13 @@ function Aboutme() {
     document.body.style.height = 'auto';
 
     gsap.registerPlugin(ScrollTrigger);
-    const lenis = new Lenis({ lerp: 0.1, smoothWheel: true });
+    
+    const lenis = new Lenis({ 
+      lerp: 0.1, 
+      smoothWheel: true,
+      smoothTouch: true,
+      syncTouch: true
+    });
 
     lenis.on('scroll', (e) => {
       if (progressBarRef.current) {

@@ -40,7 +40,15 @@ const NebulaCursor = ({ isActive }) => {
     };
 
     const handleMouseDown = (e) => {
-      if (e.target.closest('button') || e.target.closest('a')) {
+      if (document.querySelector('.mobilemenu-active')) return;
+
+      if (
+        e.target.closest('button') || 
+        e.target.closest('a') || 
+        e.target.closest('header') || 
+        e.target.closest('.audio-controls-wrapper') ||
+        e.target.closest('.mobile-menu-cont')
+      ) {
         return;
       }
 
@@ -53,7 +61,10 @@ const NebulaCursor = ({ isActive }) => {
     };
 
     const handleKeyDown = (e) => {
+      if (document.querySelector('.mobilemenu-active')) return;
+
       if (e.code === 'Space' || e.key === ' ') {
+        if (['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName)) return;
         e.preventDefault();
         triggerShockwave(mousePosRef.current.x, mousePosRef.current.y);
       }

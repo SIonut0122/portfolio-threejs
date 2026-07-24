@@ -589,7 +589,14 @@ function HomeCanvas() {
 
     const triggerNebulaInteraction = (target = null) => {
       if (activeEffectRef.current !== 'nebula') return;
-      if (target && target.closest && (target.closest('.canvas_effects_controls') || target.closest('button'))) return;
+      if (document.querySelector('.mobilemenu-active')) return;
+      if (target && target.closest && (
+        target.closest('.canvas_effects_controls') || 
+        target.closest('button') || 
+        target.closest('.audio-controls-wrapper') ||
+        target.closest('header') ||
+        target.closest('.mobile-menu-cont')
+      )) return;
 
       const isMobile = window.innerWidth <= 767.98;
       const m = isMobile ? 0.6 : 1;
@@ -907,6 +914,7 @@ function HomeCanvas() {
     const handleKeyDown = (e) => {
       if (e.code === 'Space' || e.key === ' ') {
         if (['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName)) return;
+        if (document.querySelector('.mobilemenu-active')) return;
         if (activeEffectRef.current === 'nebula') {
           e.preventDefault();
           triggerNebulaInteraction(null);
