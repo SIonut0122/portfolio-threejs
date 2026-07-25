@@ -603,7 +603,7 @@ function HomeCanvas() {
       )) return;
 
       const isMobile = window.innerWidth <= 767.98;
-      const m = isMobile ? 0.6 : 1;
+      const m = isMobile ? 0.45 : 1;
       const actionWord = isMobile ? "Touch" : "Click / Space";
 
       setHudGlowKey(prev => prev + 1);
@@ -908,7 +908,7 @@ function HomeCanvas() {
           setTimeout(() => {
             if (orbitGroupRef.current && activeEffectRef.current === 'nebula') {
               orbitGroupRef.current.visible = true;
-              orbitGroupRef.current.scale.set(1, 1, 1);
+              orbitGroupRef.current.scale.set(0.5 * m, 0.5 * m, 0.5 * m);
             }
             setNebulaHint(`Core stabilized. ${actionWord} to synthesize [0/4]`);
             setProgressStep(0);
@@ -988,7 +988,7 @@ function HomeCanvas() {
     if (!icoRef.current || !icoLinesRef.current) return;
 
     const isMobile = window.innerWidth <= 767.98;
-    const m = isMobile ? 0.6 : 1;
+    const m = isMobile ? 0.45 : 1;
 
     new TWEEN.Tween(icoRef.current.scale)
       .to({ x: 1 * m, y: 1 * m, z: 1 * m }, 1500)
@@ -1053,27 +1053,27 @@ function HomeCanvas() {
 
     const duration = 1200;
     const isMobile = window.innerWidth <= 767.98;
-    const m = isMobile ? 0.6 : 1;
+    const m = isMobile ? 0.45 : 1;
 
     if (activeEffect === 'core') {
       targetSpeedRef.current = 1;
       new TWEEN.Tween(ico.scale).to({ x: 1 * m, y: 1 * m, z: 1 * m }, duration).easing(TWEEN.Easing.Cubic.Out).start();
       new TWEEN.Tween(icoLines.scale).to({ x: 1 * m, y: 1 * m, z: 1 * m }, duration).easing(TWEEN.Easing.Cubic.Out).start();
-      new TWEEN.Tween(orbitGroup.scale).to({ x: 1, y: 1, z: 1 }, duration).easing(TWEEN.Easing.Cubic.Out).start();
+      new TWEEN.Tween(orbitGroup.scale).to({ x: 1 * m, y: 1 * m, z: 1 * m }, duration).easing(TWEEN.Easing.Cubic.Out).start();
       new TWEEN.Tween(nucleiGroup.scale).to({ x: 0, y: 0, z: 0 }, duration).easing(TWEEN.Easing.Cubic.Out).start();
     
     } else if (activeEffect === 'quantum') {
       targetSpeedRef.current = 1.8; 
       new TWEEN.Tween(ico.scale).to({ x: 0.01, y: 0.01, z: 0.01 }, duration).easing(TWEEN.Easing.Cubic.Out).start();
       new TWEEN.Tween(icoLines.scale).to({ x: 1.3 * m, y: 1.3 * m, z: 1.3 * m }, duration).easing(TWEEN.Easing.Cubic.Out).start();
-      new TWEEN.Tween(orbitGroup.scale).to({ x: 1.5, y: 1.5, z: 1.5 }, duration).easing(TWEEN.Easing.Cubic.Out).start();
+      new TWEEN.Tween(orbitGroup.scale).to({ x: 1.5 * m, y: 1.5 * m, z: 1.5 * m }, duration).easing(TWEEN.Easing.Cubic.Out).start();
       new TWEEN.Tween(nucleiGroup.scale).to({ x: 1 * m, y: 1 * m, z: 1 * m }, duration).easing(TWEEN.Easing.Cubic.Out).start();
     
     } else if (activeEffect === 'nebula') {
       targetSpeedRef.current = isMobile ? 0.35 : 0.15;
       new TWEEN.Tween(ico.scale).to({ x: 1.25 * m, y: 1.25 * m, z: 1.25 * m }, duration).easing(TWEEN.Easing.Cubic.Out).start();
       new TWEEN.Tween(icoLines.scale).to({ x: 1.35 * m, y: 1.35 * m, z: 1.35 * m }, duration).easing(TWEEN.Easing.Cubic.Out).start();
-      new TWEEN.Tween(orbitGroup.scale).to({ x: 0.5, y: 0.5, z: 0.5 }, duration).easing(TWEEN.Easing.Cubic.Out).start();
+      new TWEEN.Tween(orbitGroup.scale).to({ x: 0.5 * m, y: 0.5 * m, z: 0.5 * m }, duration).easing(TWEEN.Easing.Cubic.Out).start();
       new TWEEN.Tween(nucleiGroup.scale).to({ x: 0, y: 0, z: 0 }, duration).easing(TWEEN.Easing.Cubic.Out).start();
     }
 

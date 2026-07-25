@@ -20,8 +20,6 @@ const LoadingScreen = ({ onComplete }) => {
   const canvasRef = useRef(null);
   const progressTextRef = useRef(null);
   const requestRef = useRef();
-  const [shakeEnabled, setShakeEnabled] = useState(false);
-  const lastShakeTime = useRef(0);
   const isMobile = window.innerWidth <= 767.98;
 
   const startSequence = () => {
@@ -29,22 +27,6 @@ const LoadingScreen = ({ onComplete }) => {
     playChargeSound();
     playSpaceBackgroundSound(0.1);
     setPhase('loading');
-  };
-
-  const requestMotionPermission = async () => {
-    if (typeof DeviceMotionEvent !== 'undefined' && 
-        typeof DeviceMotionEvent.requestPermission === 'function') {
-      try {
-        const permission = await DeviceMotionEvent.requestPermission();
-        if (permission === 'granted') {
-          setShakeEnabled(true);
-        }
-      } catch (error) {
-        console.log('Motion permission denied');
-      }
-    } else {
-      setShakeEnabled(true);
-    }
   };
 
   useEffect(() => {
@@ -58,31 +40,6 @@ const LoadingScreen = ({ onComplete }) => {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [phase]);
-
-  useEffect(() => {
-    if (!shakeEnabled || phase !== 'gatekeeper' || !isMobile) return;
-
-    const handleMotion = (event) => {
-      const acceleration = event.accelerationIncludingGravity;
-      if (!acceleration) return;
-
-      const x = Math.abs(acceleration.x || 0);
-      const y = Math.abs(acceleration.y || 0);
-      const z = Math.abs(acceleration.z || 0);
-
-      const threshold = 25;
-      const now = Date.now();
-
-      if ((x > threshold || y > threshold || z > threshold) && 
-          now - lastShakeTime.current > 1000) {
-        lastShakeTime.current = now;
-        startSequence();
-      }
-    };
-
-    window.addEventListener('devicemotion', handleMotion);
-    return () => window.removeEventListener('devicemotion', handleMotion);
-  }, [shakeEnabled, phase, isMobile]);
 
   useEffect(() => {
     if (phase !== 'loading') return;
@@ -340,12 +297,7 @@ const LoadingScreen = ({ onComplete }) => {
           </button>
 
           {isMobile ? (
-            <>
-              <p className="subtext">Desktop recommended for best experience</p>
-              <p className="subtext" style={{ fontSize: '9px', marginTop: '-16px', opacity: 0.5 }}>
-                or shake your device
-              </p>
-            </>
+            <p className="subtext">Desktop recommended for best experience</p>
           ) : (
             <p className="subtext">PRESS SPACE / CLICK</p>
           )}
