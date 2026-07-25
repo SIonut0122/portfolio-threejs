@@ -33,16 +33,26 @@ const LoadingScreen = ({ onComplete }) => {
 
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
+    
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
     let width = window.innerWidth;
     let height = window.innerHeight;
-    canvas.width = width;
-    canvas.height = height;
+
+    canvas.width = width * dpr;
+    canvas.height = height * dpr;
+    canvas.style.width = `${width}px`;
+    canvas.style.height = `${height}px`;
+    
+    ctx.scale(dpr, dpr);
 
     const handleResize = () => {
       width = window.innerWidth;
       height = window.innerHeight;
-      canvas.width = width;
-      canvas.height = height;
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
+      ctx.scale(dpr, dpr);
     };
     window.addEventListener('resize', handleResize);
 
@@ -71,7 +81,7 @@ const LoadingScreen = ({ onComplete }) => {
       if (!startTime) startTime = timestamp;
       const elapsed = timestamp - startTime;
 
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
       ctx.fillStyle = 'rgba(10, 10, 10, 0.3)';
       ctx.fillRect(0, 0, width, height);
