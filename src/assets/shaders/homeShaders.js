@@ -79,6 +79,7 @@ void main() {
   vUv = uv;
   vBary = aBary;
   vNormal = normalize(normalMatrix * normal);
+  vPosition = position;
   float noiseValue = abs(cnoise(vNormal * 4.5 + time * 2.0)); 
   float baseDeform = pow(noiseValue, 2.0);
   float noisy = clamp(mouse * baseDeform * 1.5, 0.0, 0.35); 
@@ -92,6 +93,7 @@ void main() {
 export const fragmentShader = `
 uniform float time;
 uniform float progress;
+uniform float mouse;
 uniform sampler2D landscape;
 varying vec2 vUv;
 varying vec3 vPosition;
@@ -104,6 +106,31 @@ vec2 hash22(vec2 p) {
   p = fract(p * vec2(5.3983, 5.4427));
   p += dot(p.yx, p.xy + vec2(21.5351, 14.3137));
   return fract(vec2(p.x * p.y * 95.4337, p.x * p.y * 97.597));
+}
+
+float rand3(vec3 co){
+  return fract(sin(dot(co, vec3(12.9898,78.233,45.164))) * 43758.5453);
+}
+
+float noise3(vec3 p){
+  vec3 i = floor(p);
+  vec3 f = fract(p);
+  f = f*f*(3.0-2.0*f);
+  float n000 = rand3(i + vec3(0.0,0.0,0.0));
+  float n100 = rand3(i + vec3(1.0,0.0,0.0));
+  float n010 = rand3(i + vec3(0.0,1.0,0.0));
+  float n110 = rand3(i + vec3(1.0,1.0,0.0));
+  float n001 = rand3(i + vec3(0.0,0.0,1.0));
+  float n101 = rand3(i + vec3(1.0,0.0,1.0));
+  float n011 = rand3(i + vec3(0.0,1.0,1.0));
+  float n111 = rand3(i + vec3(1.0,1.0,1.0));
+  float nx00 = mix(n000, n100, f.x);
+  float nx10 = mix(n010, n110, f.x);
+  float nx01 = mix(n001, n101, f.x);
+  float nx11 = mix(n011, n111, f.x);
+  float nxy0 = mix(nx00, nx10, f.y);
+  float nxy1 = mix(nx01, nx11, f.y);
+  return mix(nxy0, nxy1, f.z);
 }
 
 void main() {
@@ -123,19 +150,36 @@ void main() {
   vec4 texColor = texture2D(landscape, uv);
   vec4 finalColor = texColor * vec4(diffuse);
   gl_FragColor = mix(finalColor, vec4(0.0, 0.0, 0.0, 1.0), 1.0 - fresnel);
+
+  float travel = vPosition.x * 3.5 - vPosition.y * 2.5 + time * 2.0;
+  float n = noise3(vec3(vPosition.xy * 4.0, travel));
+  float bolt = smoothstep(0.78, 0.9, n) * smoothstep(1.0, 0.9, n);
+  vec3 neonGreen = vec3(0.0, 1.0, 0.67);
+  float boltStrength = bolt * (0.4 + mouse * 0.6);
+  gl_FragColor.rgb += neonGreen * boltStrength;
 }
 `;
 
 export const fragmentShader1 = `
 uniform float time;
-uniform float progress;
-uniform sampler2D landscape;
-varying vec2 vUv;
+uniform float mouse;
 varying vec3 vPosition;
-varying vec3 vNormal;
-varying vec3 eyeVector;
 varying vec3 vBary;
-float PI = 3.141592653589793238;
+
+float rand(vec2 co){
+  return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+}
+
+float noise(vec2 p){
+  vec2 i = floor(p);
+  vec2 f = fract(p);
+  float a = rand(i);
+  float b = rand(i + vec2(1.0,0.0));
+  float c = rand(i + vec2(0.0,1.0));
+  float d = rand(i + vec2(1.0,1.0));
+  vec2 u = f*f*(3.0-2.0*f);
+  return mix(a,b,u.x) + (c-a)*u.y*(1.0-u.x) + (d-b)*u.x*u.y;
+}
 
 void main() {
   float width = 1.;
@@ -143,6 +187,20 @@ void main() {
   vec3 s = smoothstep( d*(width + 0.5), d*(width - 0.5), vBary);
   float line = max(s.x, max(s.y,s.z));
   if(line<0.1) discard;
-  gl_FragColor = vec4(mix(vec3(1.), vec3(0.), 1. - line),1.);
+
+  vec3 baseWireColor = vec3(1.0);
+
+  float travel = vPosition.x * 3.0 + vPosition.y * 2.0 - time * 3.0;
+  float n = noise(vec2(travel, vPosition.z * 4.0));
+
+  float bolt = smoothstep(0.82, 0.9, n) * smoothstep(1.0, 0.9, n);
+
+  vec3 boltColor = vec3(0.0, 1.0, 0.6667); // #00FFAA
+  float boltStrength = clamp(bolt * (1.0 + mouse * 0.6), 0.0, 1.0);
+
+  vec3 wireColor = baseWireColor * line;
+  vec3 finalColor = wireColor + boltColor * boltStrength;
+
+  gl_FragColor = vec4(finalColor, 1.0);
 }
 `;

@@ -3,7 +3,7 @@ let PostProcessingMod = {
     uniforms: {
 
         "tDiffuse": { value: null },
-        "howmuchrgbshifticanhaz": { value: 0 },
+        "howmuchrgbshifticanhaz": { value: 0.0 },
         "resolution": { value: null },
         "pixelSize": { value: 1. },
         "time": { value: 0 },
@@ -23,29 +23,24 @@ let PostProcessingMod = {
         uniform float pixelSize;
         uniform vec2 resolution;
         uniform float time;
-    uniform float howmuchrgbshifticanhaz;
+        uniform float howmuchrgbshifticanhaz;
         varying highp vec2 vUv;
-        float hash(vec2 p) { return fract(1e4 * sin(17.0 * p.x + p.y * 0.1) * (0.1 + abs(sin(p.y * 13.0 + p.x)))); }
-
+        
+        float hash(vec2 p) { 
+            return fract(1e4 * sin(17.0 * p.x + p.y * 0.1) * (0.1 + abs(sin(p.y * 13.0 + p.x)))); 
+        }
 
         void main() {
-            vec2 shift = vec2(0.01, 0.01)*howmuchrgbshifticanhaz;
             vec4 t = texture2D(tDiffuse, vUv);
-            vec4 t1 = texture2D(tDiffuse, vUv + shift);
-            vec4 t2 = texture2D(tDiffuse, vUv - shift);
-            vec3 color = vec3((t.r + t.b + t.g) / 6.); 
-            vec3 color1 = vec3((t1.r + t1.b + t1.g) / 6.); 
-            vec3 color2 = vec3((t2.r + t2.b + t2.g) / 6.); 
-        
-            color = vec3(color1.r, color.g, color2.b);
-        
-            float val = hash(vUv + time) * 0.15;
-        
-            vec2 dxy = pixelSize / resolution;
-            vec2 coord = dxy * floor(vUv / dxy);
-            vec4 textureColor = texture2D(tDiffuse, vUv);
-
-            gl_FragColor = vec4(color + vec3(val), 1.0);
+            vec3 color = t.rgb;
+            float val = hash(vUv + time) * 0.1;
+            float grain = hash(vUv * resolution.xy + time * 0.5) * 0.03;
+            vec3 finalColor = color + vec3(val + grain);
+            vec2 uvCentered = vUv - 0.5;
+            float vignette = 1.0 - dot(uvCentered, uvCentered) * 0.3;
+            finalColor *= vignette;
+            
+            gl_FragColor = vec4(finalColor, 1.0);
         }
         
         `

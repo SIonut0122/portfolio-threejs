@@ -648,11 +648,17 @@ function HomeCanvas() {
         const icoMesh = new THREE.Mesh(icoGeo, icoMat);
         miniNode.add(icoMesh);
 
-        const coreGeo = new THREE.SphereGeometry(0.035, 8, 8);
-        const coreMat = new THREE.MeshBasicMaterial({ color: 0xffffff, depthTest: false });
+        const coreGeo = new THREE.SphereGeometry(0.045, 8, 8);
+        const coreMat = new THREE.MeshBasicMaterial({ 
+          color: 0x2b9874,
+          transparent: true, 
+          opacity: 0.2,
+          blending: THREE.AdditiveBlending,
+          depthTest: false,
+          depthWrite: false
+        });
         const coreMesh = new THREE.Mesh(coreGeo, coreMat);
         miniNode.add(coreMesh);
-
         miniNode.renderOrder = 999;
 
         const distance = 1.6 + Math.random() * 0.8;
