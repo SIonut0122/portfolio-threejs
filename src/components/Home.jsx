@@ -2,32 +2,50 @@ import React, { useState, useEffect, useRef } from "react";
 import HomeCanvas from "./Home_canvas";
 import Content from './Content';
 import Header from './Header';
-import ambientAudioFile from '../assets/audio/ambient_bg.mp3';
-import { setSFXMuted, playClickSound } from '../utils/soundUtils';
+import LoadingScreen from './LoadingScreen';
+import { 
+  setSFXMuted, 
+  playClickSound, 
+  playAmbientSound, 
+  stopAmbientSound, 
+  setAmbientMuted, 
+  muteBackgroundAudioSound, 
+  restoreBackgroundAudioSound 
+} from '../utils/soundUtils';
 
 export const MainContext = React.createContext();
 
 function Home() {
+  const [isLoading, setIsLoading] = useState(true);
   const [canvasIsVisible, setCanvasIsVisible] = useState(true);
   const [wireFrameOn, setWireFrameOn] = useState(false);
   const [openAboutme, setOpenAboutme] = useState(false);
   const [openMyWork, setOpenMyWork] = useState(false);
-  const [openFirst, setOpenFirst] = useState(true);
-  const [isMuted, setIsMuted] = useState(true);
+  const [openFirst, setOpenFirst] = useState(false);
+  
+  const [isMuted, setIsMuted] = useState(false);
   const [isSfxMuted, setIsSfxMuted] = useState(false); 
   const [isMobileAudioOpen, setIsMobileAudioOpen] = useState(false);
   
-  const audioRef = useRef(null);
   const audioWrapperRef = useRef(null);
   const wasPlayingBeforeHideRef = useRef(false);
-  const sfxStateBeforeHideRef = useRef(false);
-  const wasPlayingBeforeAutoMuteRef = useRef(false);
+  const sfxStateBeforeHideRef5 = useRef(false);
 
   const isMutedRef = useRef(isMuted);
   isMutedRef.current = isMuted;
 
   const isSfxMutedRef = useRef(isSfxMuted);
   isSfxMutedRef.current = isSfxMuted;
+
+  const handleLoadingComplete = () => {
+    setIsLoading(false);
+    setOpenFirst(true);
+
+    const isMobile = window.innerWidth <= 767.98;
+    const ambientVolume = isMobile ? 0.015 : 0.05;
+    setAmbientMuted(false, ambientVolume);
+    playAmbientSound(ambientVolume);
+  };
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -46,31 +64,31 @@ function Home() {
   }, []);
 
   useEffect(() => {
-    audioRef.current = new Audio(ambientAudioFile);
-    audioRef.current.loop = true;
-    audioRef.current.volume = 0.05;
     document.title = '] HOME [ Ionut Stan - Front-End Developer';
 
     const handleVisibilityChange = () => {
+      const isMobile = window.innerWidth <= 767.98;
+      const ambientVolume = isMobile ? 0.015 : 0.05;
+
       if (document.hidden) {
-        if (audioRef.current && !isMutedRef.current) {
+        if (!isMutedRef.current) {
           wasPlayingBeforeHideRef.current = true;
-          audioRef.current.pause();
+          stopAmbientSound();
         } else {
           wasPlayingBeforeHideRef.current = false;
         }
 
-        sfxStateBeforeHideRef.current = isSfxMutedRef.current;
+        sfxStateBeforeHideRef5.current = isSfxMutedRef.current;
         if (!isSfxMutedRef.current) {
           setSFXMuted(true);
         }
       } else {
-        if (wasPlayingBeforeHideRef.current && audioRef.current && !isMutedRef.current) {
-          audioRef.current.play().catch(err => console.log(err));
+        if (wasPlayingBeforeHideRef.current && !isMutedRef.current) {
+          playAmbientSound(ambientVolume);
           wasPlayingBeforeHideRef.current = false;
         }
 
-        if (!sfxStateBeforeHideRef.current) {
+        if (!sfxStateBeforeHideRef5.current) {
           setSFXMuted(false);
         }
       }
@@ -80,24 +98,23 @@ function Home() {
 
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
+      stopAmbientSound();
       document.title = 'Ionut Stan - Front-End Developer';
     };
   }, []);
 
   const toggleAudio = () => {
     playClickSound(true);
-    if (!audioRef.current) return;
-    
-    if (isMuted) {
-      audioRef.current.play().catch(err => console.log(err));
-      setIsMuted(false);
+    const newMutedState = !isMuted;
+    setIsMuted(newMutedState);
+    const isMobile = window.innerWidth <= 767.98;
+    const ambientVolume = isMobile ? 0.015 : 0.05;
+
+    setAmbientMuted(newMutedState, ambientVolume);
+    if (!newMutedState) {
+      playAmbientSound(ambientVolume);
     } else {
-      audioRef.current.pause();
-      setIsMuted(true);
+      stopAmbientSound();
     }
   };
 
@@ -114,27 +131,17 @@ function Home() {
   };
 
   const muteBackgroundAudio = () => {
-    if (audioRef.current) {
-      wasPlayingBeforeAutoMuteRef.current = !isMutedRef.current;
-      if (!isMutedRef.current) {
-        audioRef.current.pause();
-      }
-    }
+    muteBackgroundAudioSound();
   };
 
   const restoreBackgroundAudio = () => {
-    if (audioRef.current) {
-      if (wasPlayingBeforeAutoMuteRef.current && !isMutedRef.current) {
-        audioRef.current.play().catch(err => console.log(err));
-      }
-      wasPlayingBeforeAutoMuteRef.current = false;
-    }
+    restoreBackgroundAudioSound();
   };
 
   return (
     <>
       <div className='home_container_full w-100'>
-        <MainContext.Provider value={{   
+        <MainContext.Provider value={{  
             canvasIsVisible, setCanvasIsVisible,
             wireFrameOn, setWireFrameOn,
             openAboutme, setOpenAboutme,
@@ -143,6 +150,8 @@ function Home() {
             muteBackgroundAudio,
             restoreBackgroundAudio
         }}>
+          {isLoading && <LoadingScreen onComplete={handleLoadingComplete} />}
+
           <Header /> 
 
           <div ref={audioWrapperRef} className={`audio-controls-wrapper ${isMobileAudioOpen ? 'mobile-expanded' : ''}`}>

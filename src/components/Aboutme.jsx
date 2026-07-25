@@ -41,7 +41,6 @@ function ScrambleText({ text, delay = 0, duration = 1000 }) {
     return () => { 
       clearTimeout(timer); if (interval) clearInterval(interval);
       document.title = 'Ionut Stan - Front-End Developer';
-
     };
   }, [text, delay, duration]);
 
@@ -75,9 +74,7 @@ function Aboutme() {
     
     const lenis = new Lenis({ 
       lerp: 0.1, 
-      smoothWheel: true,
-      smoothTouch: true,
-      syncTouch: true
+      smoothWheel: true 
     });
 
     lenis.on('scroll', (e) => {

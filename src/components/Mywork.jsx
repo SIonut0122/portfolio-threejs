@@ -15,6 +15,7 @@ function Mywork() {
   const cursorRef = useRef(null);
   const infoBoxRef = useRef(null);
   const hoverTimerRef = useRef(null);
+  const desktopBubbleTimerRef = useRef(null);
   
   const isScrollingRef = useRef(false);
   const touchStartYRef = useRef(0);
@@ -75,6 +76,7 @@ function Mywork() {
       document.documentElement.style.overflow = '';
       document.title = 'Ionut Stan - Front-End Developer';
       if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
+      if (desktopBubbleTimerRef.current) clearTimeout(desktopBubbleTimerRef.current);
     };
   }, []);
 
@@ -179,14 +181,22 @@ function Mywork() {
               data-speed={project.speed} style={{ top: project.top, left: project.left }}
               onMouseEnter={() => {
                 if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
+                if (desktopBubbleTimerRef.current) clearTimeout(desktopBubbleTimerRef.current);
                 
                 hoverTimerRef.current = setTimeout(() => {
                   setActiveIndex(index);
-                  playClickSound();
+                  playProjectSelectedSound();
                 }, 70);
+
+                if (!isMobile) {
+                  desktopBubbleTimerRef.current = setTimeout(() => {
+                    playProjectTransitionSound();
+                  }, 800);
+                }
               }}
               onMouseLeave={() => {
                 if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
+                if (desktopBubbleTimerRef.current) clearTimeout(desktopBubbleTimerRef.current);
               }}
             >
               <a href={project.url} target="_blank" rel="noreferrer" data-text={project.name} aria-label={`View project ${project.name}`}>

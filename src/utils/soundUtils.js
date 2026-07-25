@@ -1,3 +1,4 @@
+import ambientAudioFile from '../assets/audio/ambient_bg.mp3';
 import clickAudioFile from '../assets/audio/el_click.mp3';
 import coreTransitionAudioFile from '../assets/audio/core_transition.mp3';
 import windSpaceNebulaAudioFile from '../assets/audio/wind_space_nebula.mp3';
@@ -7,6 +8,9 @@ import nebulaExplosionAudioFile from '../assets/audio/nebula_explosion.mp3';
 import coolingDownAudioFile from '../assets/audio/cooling_down.mp3';
 import projectTransitionAudioFile from '../assets/audio/project_transition.mp3';
 import projectSelectedAudioFile from '../assets/audio/project_selected.mp3';
+import spaceBackgroundAudioFile from '../assets/audio/space_background_sfx.mp3';
+import structuralStrainAudioFile from '../assets/audio/structural_strain.mp3';
+import fusionAudioFile from '../assets/audio/fusion.mp3';
 
 let audioCtx = null;
 let masterGain = null;
@@ -14,6 +18,8 @@ const audioBuffers = {};
 const loopingSources = {};
 
 let sfxMuted = false;
+let ambientMuted = true;
+let wasAmbientPlayingBeforeAutoMute = false;
 let lastClickTime = 0;
 
 const getAudioContext = () => {
@@ -79,6 +85,48 @@ const playBufferSound = async (url, volume = 1, loop = false, key = null) => {
   return { source, gainNode };
 };
 
+export const playAmbientSound = (volume = 0.05) => {
+  const vol = ambientMuted ? 0 : volume;
+  playBufferSound(ambientAudioFile, vol, true, 'ambient');
+};
+
+
+export const stopAmbientSound = () => {
+  if (loopingSources['ambient']) {
+    try {
+      loopingSources['ambient'].source.stop();
+    } catch (e) {}
+    delete loopingSources['ambient'];
+  }
+};
+
+export const setAmbientMuted = (isMuted, volume = 0.05) => {
+  ambientMuted = isMuted;
+  if (loopingSources['ambient']) {
+    loopingSources['ambient'].gainNode.gain.value = isMuted ? 0 : volume;
+  } else if (!isMuted) {
+    playAmbientSound(volume);
+  }
+};
+
+export const muteBackgroundAudioSound = () => {
+  if (loopingSources['ambient']) {
+    wasAmbientPlayingBeforeAutoMute = !ambientMuted;
+    stopAmbientSound();
+  } else {
+    wasAmbientPlayingBeforeAutoMute = false;
+  }
+};
+
+export const restoreBackgroundAudioSound = () => {
+  if (wasAmbientPlayingBeforeAutoMute && !ambientMuted) {
+    playAmbientSound(0.05);
+  }
+  wasAmbientPlayingBeforeAutoMute = false;
+};
+
+// --- SFX Management ---
+
 export const setSFXMuted = (isMuted) => {
   sfxMuted = isMuted;
   if (loopingSources['nebula']) {
@@ -86,6 +134,15 @@ export const setSFXMuted = (isMuted) => {
   }
   if (loopingSources['danger']) {
     loopingSources['danger'].gainNode.gain.value = isMuted ? 0 : loopingSources['danger'].volume;
+  }
+  if (loopingSources['spaceBg']) {
+    loopingSources['spaceBg'].gainNode.gain.value = isMuted ? 0 : loopingSources['spaceBg'].volume;
+  }
+  if (loopingSources['strain']) {
+    loopingSources['strain'].gainNode.gain.value = isMuted ? 0 : loopingSources['strain'].volume;
+  }
+  if (loopingSources['fusion']) {
+    loopingSources['fusion'].gainNode.gain.value = isMuted ? 0 : loopingSources['fusion'].volume;
   }
 };
 
@@ -162,4 +219,59 @@ export const playExplosionSound = () => {
 export const playCoolingDownSound = () => {
   if (sfxMuted) return;
   playBufferSound(coolingDownAudioFile, 0.5);
+};
+
+export const playSpaceBackgroundSound = (volume) => {
+  const vol = sfxMuted ? 0 : volume;
+  playBufferSound(spaceBackgroundAudioFile, vol, true, 'spaceBg');
+};
+
+export const stopSpaceBackgroundSound = () => {
+  if (loopingSources['spaceBg']) {
+    try {
+      loopingSources['spaceBg'].source.stop();
+    } catch (e) {}
+    delete loopingSources['spaceBg'];
+  }
+};
+
+export const fadeOutSpaceBackgroundSound = (duration = 2000) => {
+  const item = loopingSources['spaceBg'];
+  if (!item || !audioCtx) return;
+
+  const currentVol = item.gainNode.gain.value;
+  item.gainNode.gain.setValueAtTime(currentVol, audioCtx.currentTime);
+  item.gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + duration / 1000);
+
+  setTimeout(() => {
+    stopSpaceBackgroundSound();
+  }, duration);
+};
+
+export const playStructuralStrainSound = (volume = 0.1) => {
+  const vol = sfxMuted ? 0 : volume;
+  playBufferSound(structuralStrainAudioFile, vol, true, 'strain');
+};
+
+export const stopStructuralStrainSound = () => {
+  if (loopingSources['strain']) {
+    try {
+      loopingSources['strain'].source.stop();
+    } catch (e) {}
+    delete loopingSources['strain'];
+  }
+};
+
+export const playFusionSound = (volume = 0.09) => {
+  const vol = sfxMuted ? 0 : volume;
+  playBufferSound(fusionAudioFile, vol, true, 'fusion');
+};
+
+export const stopFusionSound = () => {
+  if (loopingSources['fusion']) {
+    try {
+      loopingSources['fusion'].source.stop();
+    } catch (e) {}
+    delete loopingSources['fusion'];
+  }
 };
