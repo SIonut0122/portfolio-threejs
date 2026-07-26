@@ -106,7 +106,8 @@ function Mywork() {
 
       playProjectSelectedSound();
 
-      scrollContainer.scrollTo({ top: nextIndex * 110, behavior: 'smooth' });
+      const itemHeight = window.innerHeight <= 500 ? 55 : 110;
+      scrollContainer.scrollTo({ top: nextIndex * itemHeight, behavior: 'smooth' });
       
       setTimeout(() => { 
         isScrollingRef.current = false; 
@@ -166,8 +167,8 @@ function Mywork() {
         <>
           {!hasScrolled && <div className="mobile-swipe-hint">Swipe</div>}
 
-          <div className={`mobile-nav-arrow arrow-top ${showMobileDetails && mobileActiveIndex > 0 ? 'visible' : ''}`}><span></span></div>
-          <div className={`mobile-nav-arrow arrow-bottom ${showMobileDetails && mobileActiveIndex < projects.length - 1 ? 'visible' : ''}`}><span></span></div>
+          <div className={`mobile-nav-arrow arrow-top ${mobileActiveIndex > 0 ? 'visible' : ''}`}><span></span></div>
+          <div className={`mobile-nav-arrow arrow-bottom ${mobileActiveIndex < projects.length - 1 ? 'visible' : ''}`}><span></span></div>
         </>
       )}
 
@@ -212,7 +213,12 @@ function Mywork() {
                     <img src={project.img} alt="Preview" />
                   </a>
                   <div className='mobile_cursor_info_box'>
-                    <span className='info-label'>// SYS_DESC</span>
+                    <div className="info-header-flex">
+                      <span className='info-label'>// SYS_DESC</span>
+                      <span className={`type-tag ${project.type === 'work' ? 'tag-work' : 'tag-port'}`}>
+                        {project.type || 'WORK'}
+                      </span>
+                    </div>
                     <p className='info-desc'>{project.desc}</p>
                   </div>
                 </div>

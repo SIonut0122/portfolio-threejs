@@ -59,7 +59,7 @@ export const ABOUT_DATA = {
 };
 
 export const MYWORK_DATA = {
-projects: [
+    projects: [
         { 
             name: 'Startech Team', 
             year: '2023', 
@@ -69,7 +69,8 @@ projects: [
             img: startechteam, 
             top: '15%', 
             left: '10%', 
-            speed: -0.02 
+            speed: -0.02,
+            type: 'work'
         },
         { 
             name: 'Sigurantapenet', 
@@ -80,7 +81,8 @@ projects: [
             img: sigurantapenet, 
             top: '16%', 
             left: '42%', 
-            speed: 0.02 
+            speed: 0.02,
+            type: 'work'
         },
         { 
             name: 'eCommerceTv', 
@@ -91,7 +93,8 @@ projects: [
             img: ecommtv, 
             top: '24%', 
             left: '16%', 
-            speed: -0.03 
+            speed: -0.03,
+            type: 'port'
         },
         { 
             name: 'Ecommlap', 
@@ -102,7 +105,8 @@ projects: [
             img: ecommlap, 
             top: '22%', 
             left: '72%', 
-            speed: 0.03 
+            speed: 0.03,
+            type: 'port'
         },
         { 
             name: 'eCommerceTDesign', 
@@ -113,7 +117,8 @@ projects: [
             img: ecommtdesign, 
             top: '34%', 
             left: '8%', 
-            speed: -0.04 
+            speed: -0.04,
+            type: 'port'
         },
         { 
             name: 'eCommerceJager', 
@@ -124,7 +129,8 @@ projects: [
             img: ecommjager, 
             top: '33%', 
             left: '56%', 
-            speed: 0.02 
+            speed: 0.02,
+            type: 'port'
         },
         { 
             name: 'musicPlayer', 
@@ -135,7 +141,8 @@ projects: [
             img: musicplayer, 
             top: '44%', 
             left: '76%', 
-            speed: -0.03 
+            speed: -0.03,
+            type: 'port'
         },
         { 
             name: 'Livechat v.2.0', 
@@ -146,7 +153,8 @@ projects: [
             img: livechatv20, 
             top: '48%', 
             left: '30%', 
-            speed: 0.04 
+            speed: 0.04,
+            type: 'port'
         },
         { 
             name: 'pizzaDelivery', 
@@ -157,7 +165,8 @@ projects: [
             img: pizzadelivery, 
             top: '56%', 
             left: '55%', 
-            speed: -0.01 
+            speed: -0.01,
+            type: 'port'
         },
         { 
             name: 'ImgFBHost', 
@@ -168,7 +177,8 @@ projects: [
             img: imgfbhost, 
             top: '65%', 
             left: '12%', 
-            speed: 0.03 
+            speed: 0.03,
+            type: 'port'
         },
         { 
             name: 'CoffeeShop', 
@@ -179,7 +189,8 @@ projects: [
             img: coffeshop, 
             top: '67%', 
             left: '40%', 
-            speed: -0.02 
+            speed: -0.02,
+            type: 'port'
         },
         { 
             name: 'foodDelivery', 
@@ -190,7 +201,8 @@ projects: [
             img: fooddelivery, 
             top: '72%', 
             left: '68%', 
-            speed: 0.05 
+            speed: 0.05,
+            type: 'port'
         }
     ],
     crosshairs: [

@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from "react";
 import HomeCanvas from "./Home_canvas";
 import Content from './Content';
 import Header from './Header';
-import LoadingScreen from './LoadingScreen';
 import { 
   setSFXMuted, 
   playClickSound, 
@@ -16,7 +15,9 @@ import {
 export const MainContext = React.createContext();
 
 function Home() {
-  const [isLoading, setIsLoading] = useState(true);
+  const [initPhase, setInitPhase] = useState('waiting');
+  const [initProgress, setInitProgress] = useState(0);
+  
   const [canvasIsVisible, setCanvasIsVisible] = useState(true);
   const [wireFrameOn, setWireFrameOn] = useState(false);
   const [openAboutme, setOpenAboutme] = useState(false);
@@ -31,6 +32,10 @@ function Home() {
   const wasPlayingBeforeHideRef = useRef(false);
   const sfxStateBeforeHideRef5 = useRef(false);
 
+  const reqRef = useRef(null);
+  const holdStartTime = useRef(0);
+  const HOLD_DURATION = 2300;
+
   const isMutedRef = useRef(isMuted);
   isMutedRef.current = isMuted;
 
@@ -38,13 +43,55 @@ function Home() {
   isSfxMutedRef.current = isSfxMuted;
 
   const handleLoadingComplete = () => {
-    setIsLoading(false);
     setOpenFirst(true);
-
     const isMobile = window.innerWidth <= 767.98;
     const ambientVolume = isMobile ? 0.015 : 0.05;
     setAmbientMuted(false, ambientVolume);
     playAmbientSound(ambientVolume);
+  };
+
+  const handlePointerDown = (e) => {
+    e.preventDefault();
+    if (['fadingContent', 'fadingBg', 'complete'].includes(initPhase)) return;
+    
+    setInitPhase('holding');
+    playClickSound();
+    holdStartTime.current = performance.now();
+    
+    const updateProgress = (currentTime) => {
+      const elapsed = currentTime - holdStartTime.current;
+      const p = Math.min((elapsed / HOLD_DURATION) * 100, 100);
+      setInitProgress(p);
+
+      if (p < 100) {
+        reqRef.current = requestAnimationFrame(updateProgress);
+      } else {
+        setInitPhase('ready');
+      }
+    };
+    reqRef.current = requestAnimationFrame(updateProgress);
+  };
+
+  const handlePointerUp = (e) => {
+    e.preventDefault();
+    if (reqRef.current) cancelAnimationFrame(reqRef.current);
+    
+    if (initPhase === 'ready') {
+      setInitPhase('fadingContent');
+      playClickSound();
+      
+      setTimeout(() => {
+        setInitPhase('fadingBg');
+        
+        setTimeout(() => {
+          setInitPhase('complete');
+          handleLoadingComplete();
+        }, 1000); 
+      }, 2000); 
+    } else if (initPhase === 'holding') {
+      setInitPhase('waiting');
+      setInitProgress(0);
+    }
   };
 
   useEffect(() => {
@@ -141,6 +188,41 @@ function Home() {
   return (
     <>
       <div className='home_container_full w-100'>
+        {initPhase !== 'complete' && (
+          <div className={`loading_gatekeeper ${initPhase === 'fadingBg' ? 'fade-out' : ''}`}>
+            <div className="gatekeeper_decorative_grid"></div>
+            
+            <div className="gatekeeper_header_mock">
+              <div className="header-logo">
+                <img src="/images/logo.png" alt="Logo" />
+              </div>
+            </div>
+
+            <div className={`gatekeeper_content ${initPhase === 'fadingContent' ? 'content-fade-out' : ''}`}>
+              <div className={`init_status_text ${initPhase === 'ready' ? 'ready-text' : ''}`}>
+                {initPhase === 'ready' ? 'RELEASE TO PROCEED' : `Core initialization: ${Math.floor(initProgress)}%`}
+              </div>
+
+              <button 
+                className={`init_btn ${initPhase === 'ready' ? 'is-ready' : ''}`}
+                onPointerDown={handlePointerDown}
+                onPointerUp={handlePointerUp}
+                onPointerLeave={handlePointerUp}
+                onContextMenu={(e) => e.preventDefault()}
+              >
+                <div className="init_btn_bg" style={{ width: `${initProgress}%` }}></div>
+                <span className="btn_bracket">[</span>
+                <span className="btn_text">
+                  {initPhase === 'ready' ? 'CORE READY' : 'HOLD TO INITIALIZE'}
+                </span>
+                <span className="btn_bracket">]</span>
+              </button>
+
+              <p className="subtext">Desktop recommended for best experience</p>
+            </div>
+          </div>
+        )}
+
         <MainContext.Provider value={{  
             canvasIsVisible, setCanvasIsVisible,
             wireFrameOn, setWireFrameOn,
@@ -150,8 +232,7 @@ function Home() {
             muteBackgroundAudio,
             restoreBackgroundAudio
         }}>
-          {isLoading && <LoadingScreen onComplete={handleLoadingComplete} />}
-
+          
           <Header /> 
 
           <div ref={audioWrapperRef} className={`audio-controls-wrapper ${isMobileAudioOpen ? 'mobile-expanded' : ''}`}>

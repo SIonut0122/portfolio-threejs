@@ -37,8 +37,9 @@ function HomeCanvas() {
   const icoRef = useRef(null);
   const icoLinesRef = useRef(null);
   const geometryRef = useRef(null);
-  const explosionProgressRef = useRef({ value: 0 });
-
+  
+  const explosionProgressRef = useRef({ value: 6.0 });
+  const birthShakeRef = useRef({ value: 0 });
   const materialRef = useRef(null);
   const material1Ref = useRef(null);
   const orbitGroupRef = useRef(null);
@@ -60,6 +61,7 @@ function HomeCanvas() {
   const nervousIntensityRef = useRef(0);
   const isMorphingRef = useRef(false); 
   const isTransitioningRef = useRef(false);
+  const isBirthCompletedRef = useRef(false);
 
   const cooldownTimerRef = useRef(null);
 
@@ -203,6 +205,8 @@ function HomeCanvas() {
     icoLinesRef.current = icoLines;
 
     const orbitGroup = new THREE.Group();
+    orbitGroup.visible = false;
+    orbitGroup.scale.set(0, 0, 0);
     scene.add(orbitGroup);
     orbitGroupRef.current = orbitGroup; 
 
@@ -376,7 +380,7 @@ function HomeCanvas() {
       orbitGroup.rotation.z -= 0.001 * speedMultiplierRef.current;
 
       const prog = explosionProgressRef.current.value;
-      if (geometryRef.current && prog > 0.001) {
+      if (geometryRef.current && prog > 0.0001) {
         const geom = geometryRef.current;
         const pos = geom.attributes.position;
         const initPos = geom.attributes.aInitialPosition;
@@ -454,7 +458,11 @@ function HomeCanvas() {
       }
 
       if (ico && icoLines) {
-        if (nervousIntensityRef.current > 0.01) {
+        if (birthShakeRef.current.value > 0.0001) {
+          const shake = birthShakeRef.current.value;
+          ico.position.set((Math.random() - 0.5) * shake, (Math.random() - 0.5) * shake, (Math.random() - 0.5) * shake);
+          icoLines.position.copy(ico.position);
+        } else if (nervousIntensityRef.current > 0.01) {
           const shake = 0.035 * (overloadCountRef.current + 1) * nervousIntensityRef.current;
           ico.position.set((Math.random() - 0.5) * shake, (Math.random() - 0.5) * shake, 0);
           icoLines.position.copy(ico.position);
@@ -603,7 +611,7 @@ function HomeCanvas() {
       )) return;
 
       const isMobile = window.innerWidth <= 767.98;
-      const m = isMobile ? 0.45 : 1;
+      const m = isMobile ? 0.6 : 1;
       const actionWord = isMobile ? "Touch" : "Click / Space";
 
       setHudGlowKey(prev => prev + 1);
@@ -661,7 +669,10 @@ function HomeCanvas() {
         miniNode.add(coreMesh);
         miniNode.renderOrder = 999;
 
-        const distance = 1.6 + Math.random() * 0.8;
+        const distance = isMobile 
+            ? 0.8 + Math.random() * 0.4
+            : 1.6 + Math.random() * 0.8;
+        
         const initialAngle = Math.random() * Math.PI * 2;
         const orbitSpeed = (Math.random() > 0.5 ? 1 : -1) * (0.003 + Math.random() * 0.004);
 
@@ -987,18 +998,79 @@ function HomeCanvas() {
     if (!openFirst) return;
     if (!icoRef.current || !icoLinesRef.current) return;
 
+
     const isMobile = window.innerWidth <= 767.98;
-    const m = isMobile ? 0.45 : 1;
+    const m = isMobile ? 0.6 : 1; 
+
+    explosionProgressRef.current.value = 6.0; 
+    birthShakeRef.current.value = 0;
+    icoRef.current.scale.set(0.01, 0.01, 0.01); 
+    icoLinesRef.current.scale.set(0.01, 0.01, 0.01);
+
+    if (orbitGroupRef.current) {
+      orbitGroupRef.current.visible = false;
+      orbitGroupRef.current.scale.set(0, 0, 0);
+    }
+
+    if (coreGroupRef.current) {
+      coreGroupRef.current.rotation.set(Math.PI / 2, Math.PI, 0);
+      new TWEEN.Tween(coreGroupRef.current.rotation)
+        .to({ x: 0, y: 0, z: 0 }, 3200)
+        .easing(TWEEN.Easing.Cubic.Out)
+        .start();
+    }
 
     new TWEEN.Tween(icoRef.current.scale)
-      .to({ x: 1 * m, y: 1 * m, z: 1 * m }, 1500)
-      .easing(TWEEN.Easing.Cubic.Out)
+      .to({ x: 1 * m, y: 1 * m, z: 1 * m }, 3200)
+      .easing(TWEEN.Easing.Quartic.In)
       .start();
 
     new TWEEN.Tween(icoLinesRef.current.scale)
-      .to({ x: 1 * m, y: 1 * m, z: 1 * m }, 1500)
-      .easing(TWEEN.Easing.Cubic.Out)
+      .to({ x: 1 * m, y: 1 * m, z: 1 * m }, 3200)
+      .easing(TWEEN.Easing.Quartic.In)
       .start();
+
+    new TWEEN.Tween(birthShakeRef.current)
+      .to({ value: 0.05 }, 3200)
+      .easing(TWEEN.Easing.Cubic.In)
+      .start();
+
+    const soundTimer = setTimeout(() => {
+      playMaterializeSound();
+    }, 2100);
+
+    new TWEEN.Tween(explosionProgressRef.current)
+      .to({ value: 0 }, 3200) 
+      .easing(TWEEN.Easing.Quartic.In)
+      .onComplete(() => {
+        explosionProgressRef.current.value = 0;
+        birthShakeRef.current.value = 0;
+        isBirthCompletedRef.current = true;
+        
+        icoRef.current.position.set(0, 0, 0);
+        icoLinesRef.current.position.set(0, 0, 0);
+
+        if (geometryRef.current) {
+          const geom = geometryRef.current;
+          const pos = geom.attributes.position;
+          const initPos = geom.attributes.aInitialPosition;
+          for (let i = 0; i < pos.count; i++) {
+            pos.setXYZ(i, initPos.getX(i), initPos.getY(i), initPos.getZ(i));
+          }
+          pos.needsUpdate = true;
+        }
+
+        if (orbitGroupRef.current) {
+          orbitGroupRef.current.visible = true;
+          new TWEEN.Tween(orbitGroupRef.current.scale)
+            .to({ x: 1 * m, y: 1 * m, z: 1 * m }, 1200)
+            .easing(TWEEN.Easing.Back.Out)
+            .start();
+        }
+      })
+      .start();
+
+    return () => clearTimeout(soundTimer);
   }, [openFirst]);
 
   useEffect(() => {
@@ -1035,7 +1107,7 @@ function HomeCanvas() {
       setActiveEffect('core');
     } else if (openFirst) {
       material.wireframe = false; material1.wireframe = false;
-      coreGroup.visible = true; orbitGroup.visible = true;
+      coreGroup.visible = true; 
 
       new TWEEN.Tween(coreGroup.position).to({ x: 0 }, 1000).easing(TWEEN.Easing.Quadratic.Out).start();
       new TWEEN.Tween(camera.position).to({ z: 2 }, 1000).easing(TWEEN.Easing.Quadratic.Out).start();
@@ -1045,6 +1117,8 @@ function HomeCanvas() {
   }, [openAboutme, openMyWork, openFirst, restoreBackgroundAudio]);
 
   useEffect(() => {
+    if (!openFirst || !isBirthCompletedRef.current) return;
+
     const { ico, icoLines, orbitGroup, nucleiGroup } = { 
       ico: icoRef.current, icoLines: icoLinesRef.current, orbitGroup: orbitGroupRef.current, nucleiGroup: nucleiGroupRef.current 
     };
@@ -1053,7 +1127,7 @@ function HomeCanvas() {
 
     const duration = 1200;
     const isMobile = window.innerWidth <= 767.98;
-    const m = isMobile ? 0.45 : 1;
+    const m = isMobile ? 0.6 : 1; 
 
     if (activeEffect === 'core') {
       targetSpeedRef.current = 1;
@@ -1077,7 +1151,7 @@ function HomeCanvas() {
       new TWEEN.Tween(nucleiGroup.scale).to({ x: 0, y: 0, z: 0 }, duration).easing(TWEEN.Easing.Cubic.Out).start();
     }
 
-  }, [activeEffect]);
+  }, [activeEffect, openFirst]);
 
   const handleEffectChange = (effect) => {
     if (activeEffect === effect || isTransitioningRef.current) return;
