@@ -272,24 +272,31 @@ $custom-circle-cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.or
 
 @media (max-height: 500px) and (orientation: landscape) {
   .first_container {
-    height: 80svh;
-    padding: 20px 140px;
+    height: 100svh;
+    padding: 15px 40px;
     overflow: hidden;
+
+    .first_bott_bb {
+      bottom: 15px;
+      left: 40px;
+      font-size: 11px;
+    }
   }
+
   .first_cont_section {
-    padding-top: 12vh;
+    padding-top: 70px;
     min-height: unset;
+
     h3 {
-      font-size: 52px;
-      letter-spacing: 3px;
+      font-size: clamp(26px, 7vh, 34px);
+      letter-spacing: 2px;
+      line-height: 0.95;
     }
+
     .first_subtitle {
-      font-size: 14px;
-      margin-top: 15px;
+      font-size: 11px;
+      letter-spacing: 3px;
+      margin-top: 10px;
     }
-  }
-  .first_container .first_bott_bb {
-    bottom: 20px;
-    left: 140px;
   }
 }

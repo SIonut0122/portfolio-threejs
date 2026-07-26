@@ -151,6 +151,14 @@ function Mywork() {
   const formattedTech = rawTech.replaceAll('•', '//');
   const formattedText = currentProject ? `${formattedTech} // ` : "";
 
+  const getTagDetails = (typeStr) => {
+    const isWork = typeStr?.toLowerCase().includes('work');
+    return {
+      label: isWork ? 'Work-related' : 'Portfolio',
+      className: isWork ? 'tag-work' : 'tag-port'
+    };
+  };
+
   return (
     <div ref={containerRef} className='mywork_container w-100'>
       
@@ -175,6 +183,8 @@ function Mywork() {
       <div ref={scrollContainerRef} className={`scatter_grid_wrapper ${isMobile && showMobileDetails ? 'is-darkened' : ''}`}>
         {projects.map((project, index) => {
           const isFocusedMobile = isMobile && mobileActiveIndex === index;
+          const tagInfo = getTagDetails(project.type);
+
           return (
             <div 
               key={index} 
@@ -215,8 +225,8 @@ function Mywork() {
                   <div className='mobile_cursor_info_box'>
                     <div className="info-header-flex">
                       <span className='info-label'>// SYS_DESC</span>
-                      <span className={`type-tag ${project.type === 'work' ? 'tag-work' : 'tag-port'}`}>
-                        {project.type || 'WORK'}
+                      <span className={`type-tag ${tagInfo.className}`}>
+                        {tagInfo.label}
                       </span>
                     </div>
                     <p className='info-desc'>{project.desc}</p>
@@ -241,7 +251,12 @@ function Mywork() {
 
             <div ref={infoBoxRef} className='cursor_info_box_wrapper'>
               <div className='cursor_info_box'>
-                <span className='info-label'>// SYS_DESC</span>
+                <div className="info-header-flex">
+                  <span className='info-label'>// SYS_DESC</span>
+                  <span className={`type-tag ${getTagDetails(currentProject?.type).className}`}>
+                    {getTagDetails(currentProject?.type).label}
+                  </span>
+                </div>
                 <p className='info-desc'>{currentProject?.desc}</p>
               </div>
             </div>

@@ -80,9 +80,10 @@ void main() {
   vBary = aBary;
   vNormal = normalize(normalMatrix * normal);
   vPosition = position;
-  float noiseValue = abs(cnoise(vNormal * 4.5 + time * 2.0)); 
+  
+  float noiseValue = abs(cnoise(vNormal * 4.0 + time * 0.5)); 
   float baseDeform = pow(noiseValue, 2.0);
-  float noisy = clamp(mouse * baseDeform * 1.5, 0.0, 0.35); 
+  float noisy = clamp(mouse * baseDeform * 0.8, 0.0, 0.2); 
   vec3 newPosition = position + noisy * normal;
   vec4 worldPosition = modelMatrix * vec4(newPosition, 1.0);
   eyeVector = normalize(worldPosition.xyz - cameraPosition);
@@ -151,11 +152,17 @@ void main() {
   vec4 finalColor = texColor * vec4(diffuse);
   gl_FragColor = mix(finalColor, vec4(0.0, 0.0, 0.0, 1.0), 1.0 - fresnel);
 
-  float travel = vPosition.x * 3.5 - vPosition.y * 2.5 + time * 2.0;
-  float n = noise3(vec3(vPosition.xy * 4.0, travel));
-  float bolt = smoothstep(0.78, 0.9, n) * smoothstep(1.0, 0.9, n);
+  float travel = vPosition.x * 1.8 - vPosition.y * 1.2 + time * (0.3 + mouse * 0.8);
+  float frequency = 3.0 + mouse * 0.8;
+  float n = noise3(vec3(vPosition.xy * frequency, travel));
+
+  float lowerThresh = clamp(0.78 - mouse * 0.15, 0.3, 0.78);
+  float upperThresh = clamp(0.9 + mouse * 0.05, 0.9, 1.0);
+  float bolt = smoothstep(lowerThresh, upperThresh, n) * smoothstep(1.0, 0.8, n);
+
   vec3 neonGreen = vec3(0.0, 1.0, 0.67);
-  float boltStrength = bolt * (0.4 + mouse * 0.6);
+  
+  float boltStrength = bolt * (0.3 + mouse * 0.8);
   gl_FragColor.rgb += neonGreen * boltStrength;
 }
 `;
@@ -190,13 +197,16 @@ void main() {
 
   vec3 baseWireColor = vec3(1.0);
 
-  float travel = vPosition.x * 3.0 + vPosition.y * 2.0 - time * 3.0;
-  float n = noise(vec2(travel, vPosition.z * 4.0));
+  float travel = vPosition.x * 1.5 + vPosition.y * 1.0 - time * (0.4 + mouse * 0.8);
+  float frequency = 3.0 + mouse * 0.8;
+  float n = noise(vec2(travel, vPosition.z * frequency));
 
-  float bolt = smoothstep(0.82, 0.9, n) * smoothstep(1.0, 0.9, n);
+  float lowerThresh = clamp(0.82 - mouse * 0.15, 0.4, 0.82);
+  float bolt = smoothstep(lowerThresh, 0.9, n) * smoothstep(1.0, 0.8, n);
 
   vec3 boltColor = vec3(0.0, 1.0, 0.6667); // #00FFAA
-  float boltStrength = clamp(bolt * (1.0 + mouse * 0.6), 0.0, 1.0);
+  
+  float boltStrength = clamp(bolt * (0.8 + mouse * 1.0), 0.0, 1.2);
 
   vec3 wireColor = baseWireColor * line;
   vec3 finalColor = wireColor + boltColor * boltStrength;

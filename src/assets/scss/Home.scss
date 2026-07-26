@@ -395,18 +395,21 @@ body {
 
 @media (max-height: 500px) and (orientation: landscape) {
   .audio-controls-wrapper {
-    top: 85px;
-    right: 40px;
+    top: 25px;
+    right: 72px;
     transform: none;
-    width: 112px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    z-index: 100;
   }
   .audio-buttons-container {
     gap: 6px;
   }
   .audio-control-btn {
-    width: 100%;
-    padding: 4px 6px;
-    font-size: 7px;
+    width: 105px;
+    padding: 6px 8px;
+    font-size: 8px;
     white-space: nowrap;
     gap: 4px;
 
@@ -636,7 +639,7 @@ body {
     }
 
     @media (max-width: 767.98px) {
-      padding: 0 15px;
+      padding: 0;
     }
   }
 

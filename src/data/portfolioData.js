@@ -70,7 +70,7 @@ export const MYWORK_DATA = {
             top: '15%', 
             left: '10%', 
             speed: -0.02,
-            type: 'work'
+            type: 'work-related'
         },
         { 
             name: 'Sigurantapenet', 
@@ -82,7 +82,7 @@ export const MYWORK_DATA = {
             top: '16%', 
             left: '42%', 
             speed: 0.02,
-            type: 'work'
+            type: 'Work-related'
         },
         { 
             name: 'eCommerceTv', 
@@ -94,7 +94,7 @@ export const MYWORK_DATA = {
             top: '24%', 
             left: '16%', 
             speed: -0.03,
-            type: 'port'
+            type: 'Portfolio'
         },
         { 
             name: 'Ecommlap', 
@@ -106,7 +106,7 @@ export const MYWORK_DATA = {
             top: '22%', 
             left: '72%', 
             speed: 0.03,
-            type: 'port'
+            type: 'Portfolio'
         },
         { 
             name: 'eCommerceTDesign', 
@@ -118,7 +118,7 @@ export const MYWORK_DATA = {
             top: '34%', 
             left: '8%', 
             speed: -0.04,
-            type: 'port'
+            type: 'Portfolio'
         },
         { 
             name: 'eCommerceJager', 
@@ -130,7 +130,7 @@ export const MYWORK_DATA = {
             top: '33%', 
             left: '56%', 
             speed: 0.02,
-            type: 'port'
+            type: 'Portfolio'
         },
         { 
             name: 'musicPlayer', 
@@ -142,7 +142,7 @@ export const MYWORK_DATA = {
             top: '44%', 
             left: '76%', 
             speed: -0.03,
-            type: 'port'
+            type: 'Portfolio'
         },
         { 
             name: 'Livechat v.2.0', 
@@ -154,7 +154,7 @@ export const MYWORK_DATA = {
             top: '48%', 
             left: '30%', 
             speed: 0.04,
-            type: 'port'
+            type: 'Portfolio'
         },
         { 
             name: 'pizzaDelivery', 
@@ -166,7 +166,7 @@ export const MYWORK_DATA = {
             top: '56%', 
             left: '55%', 
             speed: -0.01,
-            type: 'port'
+            type: 'Portfolio'
         },
         { 
             name: 'ImgFBHost', 
@@ -178,7 +178,7 @@ export const MYWORK_DATA = {
             top: '65%', 
             left: '12%', 
             speed: 0.03,
-            type: 'port'
+            type: 'Portfolio'
         },
         { 
             name: 'CoffeeShop', 
@@ -190,7 +190,7 @@ export const MYWORK_DATA = {
             top: '67%', 
             left: '40%', 
             speed: -0.02,
-            type: 'port'
+            type: 'Portfolio'
         },
         { 
             name: 'foodDelivery', 
@@ -202,7 +202,7 @@ export const MYWORK_DATA = {
             top: '72%', 
             left: '68%', 
             speed: 0.05,
-            type: 'port'
+            type: 'Portfolio'
         }
     ],
     crosshairs: [

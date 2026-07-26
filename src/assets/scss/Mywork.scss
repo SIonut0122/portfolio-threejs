@@ -394,15 +394,44 @@
       transition: border 0.3s ease;
     }
 
-    .info-label {
-      font-size: 9px;
-      color: var(--color-accent, #00ffaa);
-      text-transform: uppercase;
-      letter-spacing: 2px;
+    .info-header-flex {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       margin-bottom: 6px;
-      display: block;
-      opacity: 0.9;
-      font-family: RobotoSlab, monospace;
+
+      .info-label {
+        font-size: 9px;
+        color: var(--color-accent, #00ffaa);
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin-bottom: 0;
+        display: block;
+        opacity: 0.9;
+        font-family: RobotoSlab, monospace;
+      }
+
+      .type-tag {
+        font-size: 8px;
+        font-family: RobotoRegular, sans-serif;
+        padding: 2px 5px;
+        border-radius: 3px;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        font-weight: 600;
+
+        &.tag-work {
+          background: rgba(0, 170, 255, 0.15);
+          color: #00aaff;
+          border: 1px solid rgba(0, 170, 255, 0.3);
+        }
+
+        &.tag-port {
+          background: rgba(0, 255, 170, 0.15);
+          color: #00ffaa;
+          border: 1px solid rgba(0, 255, 170, 0.3);
+        }
+      }
     }
 
     .info-desc {

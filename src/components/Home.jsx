@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import HomeCanvas from "./Home_canvas";
 import Content from './Content';
 import Header from './Header';
+import isLogo from '../assets/images/is-logo.png';
 import { 
   setSFXMuted, 
   playClickSound, 
@@ -194,7 +195,7 @@ function Home() {
             
             <div className="gatekeeper_header_mock">
               <div className="header-logo">
-                <img src="/images/logo.png" alt="Logo" />
+                <img src={isLogo} alt="Logo" />
               </div>
             </div>
 
