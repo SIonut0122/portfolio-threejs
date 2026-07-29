@@ -72,35 +72,77 @@ function Aboutme() {
 
     gsap.registerPlugin(ScrollTrigger);
     
-    const lenis = new Lenis({ 
-      lerp: 0.1, 
-      smoothWheel: true 
-    });
+    const isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
 
-    lenis.on('scroll', (e) => {
+    let lenis = null;
+    let updateLenis = null;
+
+    const handleNativeScroll = () => {
       if (progressBarRef.current) {
-        const progress = e.limit > 0 ? (e.scroll / e.limit) * 100 : 0;
+        const totalScroll = document.documentElement.scrollHeight - window.innerHeight;
+        const progress = totalScroll > 0 ? (window.scrollY / totalScroll) * 100 : 0;
         progressBarRef.current.style.width = `${progress}%`;
       }
-      ScrollTrigger.update();
-    });
+    };
 
-    document.querySelectorAll('.reveal-type').forEach((char) => {
-      const bg = char.dataset.bgColor;
-      const fg = char.dataset.fgColor;
-      const text = new SplitType(char, { types: 'char' });
+    if (!isChrome) {
+      lenis = new Lenis({ 
+        lerp: 0.08, 
+        smoothWheel: true 
+      });
+
+      lenis.on('scroll', (e) => {
+        if (progressBarRef.current) {
+          const progress = e.limit > 0 ? (e.scroll / e.limit) * 100 : 0;
+          progressBarRef.current.style.width = `${progress}%`;
+        }
+        ScrollTrigger.update();
+      });
+
+      updateLenis = (time) => {
+        lenis.raf(time * 1000);
+      };
+      gsap.ticker.add(updateLenis);
+      gsap.ticker.lagSmoothing(0);
+    } else {
+      window.addEventListener('scroll', handleNativeScroll, { passive: true });
+    }
+
+    const splitInstances = [];
+    const revealElements = document.querySelectorAll('.reveal-type');
+
+    revealElements.forEach((char) => {
+      const bg = char.dataset.bgColor || 'transparent';
+      const fg = char.dataset.fgColor || 'white';
+      const text = new SplitType(char, { types: 'chars' });
+      splitInstances.push(text);
+
       gsap.fromTo(text.chars, 
         { color: bg },
-        { color: fg, duration: 0.5, stagger: 0.01, scrollTrigger: { trigger: char, start: 'top 80%', end: 'top 20%', scrub: true } }
+        { 
+          color: fg, 
+          duration: 0.5, 
+          stagger: 0.01, 
+          scrollTrigger: { 
+            trigger: char, 
+            start: 'top 85%', 
+            end: 'top 25%', 
+            scrub: true 
+          } 
+        }
       );
     });
 
-    function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
-    const rafId = requestAnimationFrame(raf);
+    ScrollTrigger.refresh();
 
     return () => {
-      cancelAnimationFrame(rafId);
-      lenis.destroy();
+      if (lenis) {
+        if (updateLenis) gsap.ticker.remove(updateLenis);
+        lenis.destroy();
+      } else {
+        window.removeEventListener('scroll', handleNativeScroll);
+      }
+      splitInstances.forEach(instance => instance.revert());
       ScrollTrigger.getAll().forEach(t => t.kill());
       document.body.style.overflow = '';
       document.body.style.overflowX = '';

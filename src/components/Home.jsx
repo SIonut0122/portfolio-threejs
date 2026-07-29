@@ -24,6 +24,7 @@ function Home() {
   const [openAboutme, setOpenAboutme] = useState(false);
   const [openMyWork, setOpenMyWork] = useState(false);
   const [openFirst, setOpenFirst] = useState(false);
+  const [showHomeContent, setShowHomeContent] = useState(false);
   
   const [isMuted, setIsMuted] = useState(false);
   const [isSfxMuted, setIsSfxMuted] = useState(false); 
@@ -36,6 +37,9 @@ function Home() {
   const reqRef = useRef(null);
   const holdStartTime = useRef(0);
   const HOLD_DURATION = 2300;
+
+  const initPhaseRef = useRef(initPhase);
+  initPhaseRef.current = initPhase;
 
   const isMutedRef = useRef(isMuted);
   isMutedRef.current = isMuted;
@@ -53,7 +57,7 @@ function Home() {
 
   const handlePointerDown = (e) => {
     e.preventDefault();
-    if (['fadingContent', 'fadingBg', 'complete'].includes(initPhase)) return;
+    if (['fadingContent', 'fadingBg', 'complete'].includes(initPhaseRef.current)) return;
     
     setInitPhase('holding');
     playClickSound();
@@ -73,27 +77,35 @@ function Home() {
     reqRef.current = requestAnimationFrame(updateProgress);
   };
 
-  const handlePointerUp = (e) => {
-    e.preventDefault();
-    if (reqRef.current) cancelAnimationFrame(reqRef.current);
-    
-    if (initPhase === 'ready') {
-      setInitPhase('fadingContent');
-      playClickSound();
+  useEffect(() => {
+    const handleGlobalPointerUp = () => {
+      if (reqRef.current) cancelAnimationFrame(reqRef.current);
       
-      setTimeout(() => {
-        setInitPhase('fadingBg');
+      const currentPhase = initPhaseRef.current;
+      
+      if (currentPhase === 'ready') {
+        setInitPhase('fadingContent');
+        playClickSound();
         
         setTimeout(() => {
-          setInitPhase('complete');
-          handleLoadingComplete();
-        }, 1000); 
-      }, 2000); 
-    } else if (initPhase === 'holding') {
-      setInitPhase('waiting');
-      setInitProgress(0);
-    }
-  };
+          setInitPhase('fadingBg');
+          
+          setTimeout(() => {
+            setInitPhase('complete');
+            handleLoadingComplete();
+          }, 650); 
+        }, 400); 
+      } else if (currentPhase === 'holding') {
+        setInitPhase('waiting');
+        setInitProgress(0);
+      }
+    };
+
+    window.addEventListener('pointerup', handleGlobalPointerUp);
+    return () => {
+      window.removeEventListener('pointerup', handleGlobalPointerUp);
+    };
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -186,6 +198,22 @@ function Home() {
     restoreBackgroundAudioSound();
   };
 
+  const isReadyState = ['ready', 'fadingContent', 'fadingBg'].includes(initPhase);
+  const isContentFading = ['fadingContent', 'fadingBg'].includes(initPhase);
+
+  useEffect(() => {
+    const isMobile = window.innerWidth <= 767.98;
+    if (isReadyState && !isMobile && initPhase !== 'complete') {
+      document.body.classList.add('gatekeeper-ready-cursor');
+    } else {
+      document.body.classList.remove('gatekeeper-ready-cursor');
+    }
+
+    return () => {
+      document.body.classList.remove('gatekeeper-ready-cursor');
+    };
+  }, [isReadyState, initPhase]);
+
   return (
     <>
       <div className='home_container_full w-100'>
@@ -199,22 +227,20 @@ function Home() {
               </div>
             </div>
 
-            <div className={`gatekeeper_content ${initPhase === 'fadingContent' ? 'content-fade-out' : ''}`}>
-              <div className={`init_status_text ${initPhase === 'ready' ? 'ready-text' : ''}`}>
-                {initPhase === 'ready' ? 'RELEASE TO PROCEED' : `Core initialization: ${Math.floor(initProgress)}%`}
+            <div className={`gatekeeper_content ${isContentFading ? 'content-fade-out' : ''}`}>
+              <div className={`init_status_text ${isReadyState ? 'ready-text' : ''}`}>
+                {isReadyState ? 'RELEASE TO PROCEED' : `Core initialization: ${Math.floor(initProgress)}%`}
               </div>
 
               <button 
-                className={`init_btn ${initPhase === 'ready' ? 'is-ready' : ''}`}
+                className={`init_btn ${isReadyState ? 'is-ready' : ''}`}
                 onPointerDown={handlePointerDown}
-                onPointerUp={handlePointerUp}
-                onPointerLeave={handlePointerUp}
                 onContextMenu={(e) => e.preventDefault()}
               >
                 <div className="init_btn_bg" style={{ width: `${initProgress}%` }}></div>
                 <span className="btn_bracket">[</span>
                 <span className="btn_text">
-                  {initPhase === 'ready' ? 'CORE READY' : 'HOLD TO INITIALIZE'}
+                  {isReadyState ? 'CORE READY' : 'HOLD TO INITIALIZE'}
                 </span>
                 <span className="btn_bracket">]</span>
               </button>
@@ -230,6 +256,7 @@ function Home() {
             openAboutme, setOpenAboutme,
             openMyWork, setOpenMyWork,
             openFirst, setOpenFirst,
+            showHomeContent, setShowHomeContent,
             muteBackgroundAudio,
             restoreBackgroundAudio
         }}>
@@ -258,7 +285,7 @@ function Home() {
           </div>
           
           <HomeCanvas />
-          <Content />
+          {showHomeContent && <Content />}
             
         </MainContext.Provider>
       </div>

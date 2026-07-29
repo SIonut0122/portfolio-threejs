@@ -22,15 +22,20 @@ import {
 } from '../utils/soundUtils';
 
 function HomeCanvas() {
-  const { openAboutme, openMyWork, openFirst, wireFrameOn, muteBackgroundAudio, restoreBackgroundAudio } = useContext(MainContext);
+  const { openAboutme, openMyWork, openFirst, setShowHomeContent, wireFrameOn, muteBackgroundAudio, restoreBackgroundAudio } = useContext(MainContext);
   const containerRef = useRef(null);
   
   const [activeEffect, setActiveEffect] = useState('core');
   const activeEffectRef = useRef('core');
   const [nebulaHint, setNebulaHint] = useState('');
+  const [showControls, setShowControls] = useState(false);
 
   const [progressStep, setProgressStep] = useState(0);
   const [hudGlowKey, setHudGlowKey] = useState(0);
+
+  const controlsWrapperRef = useRef(null);
+  const buttonRefs = useRef({});
+  const [pillStyle, setPillStyle] = useState({ left: 0, width: 0, opacity: 0 });
 
   const sceneRef = useRef(null);
   const cameraRef = useRef(null);
@@ -63,6 +68,8 @@ function HomeCanvas() {
   const isTransitioningRef = useRef(false);
   const isBirthCompletedRef = useRef(false);
 
+  const prevSubpageRef = useRef(false);
+
   const cooldownTimerRef = useRef(null);
 
   const flashRef = useRef(null);
@@ -79,6 +86,28 @@ function HomeCanvas() {
   useEffect(() => {
     openAboutmeRef.current = openAboutme;
   }, [openAboutme]);
+
+  useEffect(() => {
+    const updatePillPosition = () => {
+      const activeBtn = buttonRefs.current[activeEffect];
+      const wrapper = controlsWrapperRef.current;
+
+      if (activeBtn && wrapper) {
+        const btnRect = activeBtn.getBoundingClientRect();
+        const wrapperRect = wrapper.getBoundingClientRect();
+
+        setPillStyle({
+          left: btnRect.left - wrapperRect.left,
+          width: btnRect.width,
+          opacity: 1
+        });
+      }
+    };
+
+    updatePillPosition();
+    window.addEventListener('resize', updatePillPosition);
+    return () => window.removeEventListener('resize', updatePillPosition);
+  }, [activeEffect, showControls, openAboutme, openMyWork]);
 
   useEffect(() => {
     activeEffectRef.current = activeEffect;
@@ -230,7 +259,12 @@ function HomeCanvas() {
     miniGroupRef.current = miniGroup;
 
     const nucleiGeo = new THREE.SphereGeometry(0.025, 16, 16);
-    const nucleiMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+    const nucleiMat = new THREE.MeshBasicMaterial({ 
+      color: new THREE.Color(0.0, 1.0, 0.6667),
+      transparent: true,
+      opacity: 0.6,
+      blending: THREE.AdditiveBlending
+    });
     const nucleiCount = 8;
     const nucleiData = [];
 
@@ -998,9 +1032,11 @@ function HomeCanvas() {
     if (!openFirst) return;
     if (!icoRef.current || !icoLinesRef.current) return;
 
-
     const isMobile = window.innerWidth <= 767.98;
     const m = isMobile ? 0.6 : 1; 
+
+    setShowControls(false);
+    if (setShowHomeContent) setShowHomeContent(false);
 
     explosionProgressRef.current.value = 6.0; 
     birthShakeRef.current.value = 0;
@@ -1062,22 +1098,28 @@ function HomeCanvas() {
 
         if (orbitGroupRef.current) {
           orbitGroupRef.current.visible = true;
+          if (activeEffectRef.current === 'core' && nucleiGroupRef.current) {
+            nucleiGroupRef.current.scale.set(0, 0, 0);
+          }
           new TWEEN.Tween(orbitGroupRef.current.scale)
             .to({ x: 1 * m, y: 1 * m, z: 1 * m }, 1200)
             .easing(TWEEN.Easing.Back.Out)
             .start();
         }
+
+        setShowControls(true);
+        if (setShowHomeContent) setShowHomeContent(true);
       })
       .start();
 
     return () => clearTimeout(soundTimer);
-  }, [openFirst]);
+  }, [openFirst, setShowHomeContent]);
 
   useEffect(() => {
     const container = containerRef.current;
-    const { camera, material, material1, orbitGroup, coreGroup } = { 
+    const { camera, material, material1, orbitGroup, coreGroup, nucleiGroup } = { 
         camera: cameraRef.current, material: materialRef.current, 
-        material1: material1Ref.current, orbitGroup: orbitGroupRef.current, coreGroup: coreGroupRef.current
+        material1: material1Ref.current, orbitGroup: orbitGroupRef.current, coreGroup: coreGroupRef.current, nucleiGroup: nucleiGroupRef.current
     };
       
     if (!camera || !orbitGroup || !coreGroup || !container) return;
@@ -1085,7 +1127,10 @@ function HomeCanvas() {
     requestAnimationFrame(() => { container.style.opacity = '1'; });
     container.style.pointerEvents = openMyWork ? 'none' : 'auto';
 
-    if (openAboutme || openMyWork) {
+    const isSubpageActive = openAboutme || openMyWork;
+
+    if (isSubpageActive) {
+      setShowControls(false);
       if (cooldownTimerRef.current) {
         clearTimeout(cooldownTimerRef.current);
         cooldownTimerRef.current = null;
@@ -1094,6 +1139,9 @@ function HomeCanvas() {
       stopDangerSound();
       if (restoreBackgroundAudio) restoreBackgroundAudio();
     }
+
+    const justReturnedFromSubpage = prevSubpageRef.current && !isSubpageActive;
+    prevSubpageRef.current = isSubpageActive;
 
     if (openAboutme) {
       material.wireframe = true; material1.wireframe = true;
@@ -1111,10 +1159,87 @@ function HomeCanvas() {
 
       new TWEEN.Tween(coreGroup.position).to({ x: 0 }, 1000).easing(TWEEN.Easing.Quadratic.Out).start();
       new TWEEN.Tween(camera.position).to({ z: 2 }, 1000).easing(TWEEN.Easing.Quadratic.Out).start();
+
+      if (justReturnedFromSubpage && icoRef.current && icoLinesRef.current) {
+        const isMobile = window.innerWidth <= 767.98;
+        const m = isMobile ? 0.6 : 1;
+
+        setShowControls(false);
+        if (setShowHomeContent) setShowHomeContent(false);
+        isBirthCompletedRef.current = false;
+
+        explosionProgressRef.current.value = 6.0;
+        birthShakeRef.current.value = 0;
+        icoRef.current.scale.set(0.01, 0.01, 0.01);
+        icoLinesRef.current.scale.set(0.01, 0.01, 0.01);
+        orbitGroup.visible = false;
+        orbitGroup.scale.set(0, 0, 0);
+
+        if (nucleiGroup && activeEffectRef.current === 'core') {
+          nucleiGroup.scale.set(0, 0, 0);
+        }
+
+        coreGroup.rotation.set(Math.PI / 2, Math.PI, 0);
+        new TWEEN.Tween(coreGroup.rotation)
+          .to({ x: 0, y: 0, z: 0 }, 3200)
+          .easing(TWEEN.Easing.Cubic.Out)
+          .start();
+
+        new TWEEN.Tween(icoRef.current.scale)
+          .to({ x: 1 * m, y: 1 * m, z: 1 * m }, 3200)
+          .easing(TWEEN.Easing.Quartic.In)
+          .start();
+
+        new TWEEN.Tween(icoLinesRef.current.scale)
+          .to({ x: 1 * m, y: 1 * m, z: 1 * m }, 3200)
+          .easing(TWEEN.Easing.Quartic.In)
+          .start();
+
+        new TWEEN.Tween(birthShakeRef.current)
+          .to({ value: 0.05 }, 3200)
+          .easing(TWEEN.Easing.Cubic.In)
+          .start();
+
+        setTimeout(() => {
+          playMaterializeSound();
+        }, 2100);
+
+        new TWEEN.Tween(explosionProgressRef.current)
+          .to({ value: 0 }, 3200)
+          .easing(TWEEN.Easing.Quartic.In)
+          .onComplete(() => {
+            explosionProgressRef.current.value = 0;
+            birthShakeRef.current.value = 0;
+            isBirthCompletedRef.current = true;
+
+            icoRef.current.position.set(0, 0, 0);
+            icoLinesRef.current.position.set(0, 0, 0);
+
+            if (geometryRef.current) {
+              const geom = geometryRef.current;
+              const pos = geom.attributes.position;
+              const initPos = geom.attributes.aInitialPosition;
+              for (let i = 0; i < pos.count; i++) {
+                pos.setXYZ(i, initPos.getX(i), initPos.getY(i), initPos.getZ(i));
+              }
+              pos.needsUpdate = true;
+            }
+
+            orbitGroup.visible = true;
+            new TWEEN.Tween(orbitGroup.scale)
+              .to({ x: 1 * m, y: 1 * m, z: 1 * m }, 1200)
+              .easing(TWEEN.Easing.Back.Out)
+              .start();
+
+            setShowControls(true);
+            if (setShowHomeContent) setShowHomeContent(true);
+          })
+          .start();
+      }
     }
       
     material.needsUpdate = true; material1.needsUpdate = true;
-  }, [openAboutme, openMyWork, openFirst, restoreBackgroundAudio]);
+  }, [openAboutme, openMyWork, openFirst, restoreBackgroundAudio, setShowHomeContent]);
 
   useEffect(() => {
     if (!openFirst || !isBirthCompletedRef.current) return;
@@ -1189,10 +1314,11 @@ function HomeCanvas() {
   };
 
   const hudAnimationClass = hudGlowKey > 0 ? 'animate-glow' : '';
+  const isControlsVisible = showControls && !openAboutme && !openMyWork;
 
   return (
     <>
-      <NebulaCursor isActive={activeEffect === 'nebula' && openFirst} />
+      <NebulaCursor isActive={activeEffect === 'nebula' && openFirst && !openAboutme && !openMyWork} />
 
       <div 
         ref={containerRef} 
@@ -1200,20 +1326,34 @@ function HomeCanvas() {
         style={{ transition: 'opacity 0.5s ease-in-out' }}
       ></div>
 
-      <div className={`canvas_effects_controls ${openFirst ? 'visible' : 'hidden'}`}>
+      <div 
+        ref={controlsWrapperRef}
+        className={`canvas_effects_controls ${isControlsVisible ? 'visible' : 'hidden'}`}
+      >
+        <div 
+          className="active-pill" 
+          style={{ 
+            left: `${pillStyle.left}px`, 
+            width: `${pillStyle.width}px`,
+            opacity: pillStyle.opacity 
+          }}
+        ></div>
         <button 
+          ref={(el) => (buttonRefs.current['core'] = el)}
           className={activeEffect === 'core' ? 'active' : ''} 
           onClick={() => handleEffectChange('core')}
         >
           CORE
         </button>
         <button 
+          ref={(el) => (buttonRefs.current['quantum'] = el)}
           className={activeEffect === 'quantum' ? 'active' : ''} 
           onClick={() => handleEffectChange('quantum')}
         >
           QUANTUM
         </button>
         <button 
+          ref={(el) => (buttonRefs.current['nebula'] = el)}
           className={activeEffect === 'nebula' ? 'active' : ''} 
           onClick={() => handleEffectChange('nebula')}
         >
@@ -1221,7 +1361,7 @@ function HomeCanvas() {
         </button>
       </div>
 
-      {activeEffect === 'nebula' && openFirst && nebulaHint && (
+      {activeEffect === 'nebula' && openFirst && !openAboutme && !openMyWork && nebulaHint && (
         <div 
           key={hudGlowKey}
           className={`nebula_hud_hint ${hudAnimationClass}`}

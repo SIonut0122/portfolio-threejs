@@ -26,6 +26,11 @@ function Header() {
     }, []);
 
     useEffect(() => {
+        if (!openFirst && !openAboutme && !openMyWork) {
+            setIsNavReady(false);
+            return;
+        }
+
         setIsNavReady(false);
         const delay = openFirst ? 2800 : 1200; 
         const timer = setTimeout(() => setIsNavReady(true), delay);
