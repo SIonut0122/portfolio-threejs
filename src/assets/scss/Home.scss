@@ -23,9 +23,11 @@ body {
   line-height: 1.2;
   overflow-x: hidden;
   background-color: var(--color-bg-base);
+  overscroll-behavior-y: none;
   font-family: RobotoSlab, RobotoRegular, Arial, Helvetica, sans-serif;
   color: #ffffff;
 }
+
 
 .mobmenu-btn-active {
   -webkit-text-stroke: 1px #ffffff;
@@ -38,15 +40,19 @@ body {
 }
 
 .home_container_cont {
-  position: fixed;
-  width: 100%;
-  height: 100svh;
-  left: 0;
+position: fixed;
   top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
   z-index: -1;
 
   canvas {
-    height: 100%;
+   width: 100% !important;
+    height: 100% !important;
+    display: block;
   }
 }
 

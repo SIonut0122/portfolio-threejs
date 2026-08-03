@@ -78,6 +78,7 @@ function HomeCanvas() {
 
   const openMyWorkRef = useRef(openMyWork);
   const openAboutmeRef = useRef(openAboutme);
+  let lastWidth = window.innerWidth;
 
   useEffect(() => {
     openMyWorkRef.current = openMyWork;
@@ -977,7 +978,14 @@ function HomeCanvas() {
       }
     };
 
-    const handleResize = () => {
+const handleResize = () => {
+      const isMobile = window.innerWidth <= 767.98;
+
+      if (isMobile && window.innerWidth === lastWidth) {
+        return;
+      }
+      lastWidth = window.innerWidth;
+
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
