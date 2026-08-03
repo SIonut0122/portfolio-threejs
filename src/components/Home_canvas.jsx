@@ -1143,10 +1143,20 @@ function HomeCanvas() {
     const justReturnedFromSubpage = prevSubpageRef.current && !isSubpageActive;
     prevSubpageRef.current = isSubpageActive;
 
-    if (openAboutme) {
+if (openAboutme) {
       material.wireframe = true; material1.wireframe = true;
       coreGroup.visible = true; orbitGroup.visible = false;
-        
+
+      const isMobile = window.innerWidth <= 767.98;
+      const m = isMobile ? 0.6 : 1;
+      if (icoRef.current && icoLinesRef.current) {
+        new TWEEN.Tween(icoRef.current.scale).to({ x: 1 * m, y: 1 * m, z: 1 * m }, 1000).easing(TWEEN.Easing.Cubic.Out).start();
+        new TWEEN.Tween(icoLinesRef.current.scale).to({ x: 1 * m, y: 1 * m, z: 1 * m }, 1000).easing(TWEEN.Easing.Cubic.Out).start();
+      }
+      if (nucleiGroupRef.current) {
+        nucleiGroupRef.current.scale.set(0, 0, 0);
+      }
+
       new TWEEN.Tween(coreGroup.position).to({ x: -1 }, 1000).easing(TWEEN.Easing.Quadratic.Out).start();
       new TWEEN.Tween(camera.position).to({ z: 1 }, 1000).easing(TWEEN.Easing.Quadratic.Out).start();
       setActiveEffect('core');
@@ -1242,12 +1252,14 @@ function HomeCanvas() {
   }, [openAboutme, openMyWork, openFirst, restoreBackgroundAudio, setShowHomeContent]);
 
   useEffect(() => {
-    if (!openFirst || !isBirthCompletedRef.current) return;
+if (!openFirst || !isBirthCompletedRef.current) return;
+
+    if (openAboutmeRef.current || openMyWorkRef.current) return; 
 
     const { ico, icoLines, orbitGroup, nucleiGroup } = { 
       ico: icoRef.current, icoLines: icoLinesRef.current, orbitGroup: orbitGroupRef.current, nucleiGroup: nucleiGroupRef.current 
     };
-      
+
     if (!ico || !icoLines || !orbitGroup || !nucleiGroup) return;
 
     const duration = 1200;

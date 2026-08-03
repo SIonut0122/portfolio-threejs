@@ -26,7 +26,7 @@ function Home() {
   const [openFirst, setOpenFirst] = useState(false);
   const [showHomeContent, setShowHomeContent] = useState(false);
   
-  const [isMuted, setIsMuted] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
   const [isSfxMuted, setIsSfxMuted] = useState(false); 
   const [isMobileAudioOpen, setIsMobileAudioOpen] = useState(false);
   
@@ -49,10 +49,6 @@ function Home() {
 
   const handleLoadingComplete = () => {
     setOpenFirst(true);
-    const isMobile = window.innerWidth <= 767.98;
-    const ambientVolume = isMobile ? 0.015 : 0.05;
-    setAmbientMuted(false, ambientVolume);
-    playAmbientSound(ambientVolume);
   };
 
   const handlePointerDown = (e) => {
@@ -133,7 +129,7 @@ function Home() {
       if (document.hidden) {
         if (!isMutedRef.current) {
           wasPlayingBeforeHideRef.current = true;
-          stopAmbientSound();
+          setAmbientMuted(true, ambientVolume);
         } else {
           wasPlayingBeforeHideRef.current = false;
         }
@@ -144,7 +140,7 @@ function Home() {
         }
       } else {
         if (wasPlayingBeforeHideRef.current && !isMutedRef.current) {
-          playAmbientSound(ambientVolume);
+          setAmbientMuted(false, ambientVolume);
           wasPlayingBeforeHideRef.current = false;
         }
 
@@ -171,11 +167,6 @@ function Home() {
     const ambientVolume = isMobile ? 0.015 : 0.05;
 
     setAmbientMuted(newMutedState, ambientVolume);
-    if (!newMutedState) {
-      playAmbientSound(ambientVolume);
-    } else {
-      stopAmbientSound();
-    }
   };
 
   const toggleSFX = () => {
