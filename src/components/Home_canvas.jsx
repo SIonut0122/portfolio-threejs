@@ -978,7 +978,7 @@ function HomeCanvas() {
       }
     };
 
-const handleResize = () => {
+    const handleResize = () => {
       const isMobile = window.innerWidth <= 767.98;
 
       if (isMobile && window.innerWidth === lastWidth) {
